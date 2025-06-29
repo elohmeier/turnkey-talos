@@ -1,0 +1,585 @@
+variable "cluster_name" {
+  type        = string
+  description = "Specifies the name of the cluster. This name is used to identify the cluster within the infrastructure and should be unique across all deployments."
+
+  validation {
+    condition     = can(regex("^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$", var.cluster_name))
+    error_message = "The cluster name must start and end with a lowercase letter or number, can contain hyphens, and must be no longer than 32 characters."
+  }
+}
+
+variable "cluster_delete_protection" {
+  type        = bool
+  default     = true
+  description = "Adds delete protection for resources that support it."
+}
+
+variable "hcloud_token" {
+  type        = string
+  description = "The Hetzner Cloud API token used for authentication with Hetzner Cloud services. This token should be treated as sensitive information."
+  sensitive   = true
+}
+
+variable "control_plane_count" {
+  type        = number
+  default     = 3
+  description = "Number of control plane nodes to deploy."
+
+  validation {
+    condition     = var.control_plane_count > 0 && var.control_plane_count % 2 == 1
+    error_message = "Control plane count must be a positive odd number for proper etcd quorum."
+  }
+}
+
+variable "worker_count" {
+  type        = number
+  default     = 3
+  description = "Number of worker nodes to deploy."
+
+  validation {
+    condition     = var.worker_count >= 0
+    error_message = "Worker count must be zero or greater."
+  }
+}
+
+variable "s3_admin_access_key" {
+  type        = string
+  sensitive   = true
+  default     = ""
+  description = "S3 Admin Access Key for managing S3 resources (buckets, access keys, etc.)."
+}
+
+variable "s3_admin_secret_key" {
+  type        = string
+  sensitive   = true
+  default     = ""
+  description = "S3 Admin Secret Access Key for managing S3 resources (buckets, access keys, etc.)."
+}
+
+
+# Kubetail
+variable "kubetail_helm_repository" {
+  type        = string
+  default     = "https://kubetail-org.github.io/helm-charts/"
+  description = "URL of the Helm repository where the Kubetail chart is located."
+}
+
+variable "kubetail_helm_chart" {
+  type        = string
+  default     = "kubetail"
+  description = "Name of the Helm chart used for deploying Kubetail."
+}
+
+variable "kubetail_helm_version" {
+  type        = string
+  default     = "0.13.2"
+  description = "Version of the Kubetail Helm chart to deploy."
+}
+
+variable "kubetail_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the Kubetail chart deployment. These values will merge with and will override the default values provided by the Kubetail Helm chart."
+}
+
+variable "kubetail_enabled" {
+  type        = bool
+  default     = true
+  description = "Enables the deployment of Kubetail for real-time log viewing."
+}
+
+variable "kubetail_allowed_namespaces" {
+  type        = list(string)
+  default     = []
+  description = "List of namespaces that Kubetail is allowed to access. If empty, all namespaces are accessible."
+}
+
+# CloudNative-PG
+variable "cloudnative_pg_helm_repository" {
+  type        = string
+  default     = "https://cloudnative-pg.github.io/charts"
+  description = "URL of the Helm repository where the CloudNative-PG chart is located."
+}
+
+variable "cloudnative_pg_helm_chart" {
+  type        = string
+  default     = "cloudnative-pg"
+  description = "Name of the Helm chart used for deploying CloudNative-PG."
+}
+
+variable "cloudnative_pg_helm_version" {
+  type        = string
+  default     = "0.24.0"
+  description = "Version of the CloudNative-PG Helm chart to deploy."
+}
+
+variable "cloudnative_pg_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the CloudNative-PG chart deployment. These values will merge with and will override the default values provided by the CloudNative-PG Helm chart."
+}
+
+variable "cloudnative_pg_enabled" {
+  type        = bool
+  default     = true
+  description = "Enables the deployment of CloudNative-PG operator for PostgreSQL management."
+}
+
+
+# CloudNative-PG Cluster Chart
+variable "cloudnative_pg_cluster_helm_repository" {
+  type        = string
+  default     = "https://cloudnative-pg.github.io/charts"
+  description = "URL of the Helm repository where the CloudNative-PG cluster chart is located."
+}
+
+variable "cloudnative_pg_cluster_helm_chart" {
+  type        = string
+  default     = "cluster"
+  description = "Name of the Helm chart used for deploying CloudNative-PG clusters."
+}
+
+variable "cloudnative_pg_cluster_helm_version" {
+  type        = string
+  default     = "0.3.1"
+  description = "Version of the CloudNative-PG cluster Helm chart to deploy."
+}
+
+variable "cloudnative_pg_cluster_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the CloudNative-PG cluster chart deployment. These values will merge with and will override the default values provided by the CloudNative-PG cluster Helm chart."
+}
+
+# CloudNative-PG Grafana Dashboard
+variable "cloudnative_pg_grafana_dashboard_helm_repository" {
+  type        = string
+  default     = "https://cloudnative-pg.github.io/grafana-dashboards"
+  description = "URL of the Helm repository where the CloudNative-PG Grafana dashboard chart is located."
+}
+
+variable "cloudnative_pg_grafana_dashboard_helm_chart" {
+  type        = string
+  default     = "cluster"
+  description = "Name of the Helm chart used for deploying CloudNative-PG Grafana dashboard."
+}
+
+variable "cloudnative_pg_grafana_dashboard_helm_version" {
+  type        = string
+  default     = "0.0.5"
+  description = "Version of the CloudNative-PG Grafana dashboard Helm chart to deploy."
+}
+
+variable "cloudnative_pg_grafana_dashboard_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the CloudNative-PG Grafana dashboard chart deployment. These values will merge with and will override the default values provided by the CloudNative-PG Grafana dashboard Helm chart."
+}
+
+
+
+# Tailscale
+variable "tailscale_enabled" {
+  type        = bool
+  default     = true
+  description = "Enables the deployment of Tailscale Kubernetes Operator for secure networking and access control."
+}
+
+variable "tailscale_helm_repository" {
+  type        = string
+  default     = "https://pkgs.tailscale.com/helmcharts"
+  description = "URL of the Helm repository where the Tailscale Operator chart is located."
+}
+
+variable "tailscale_helm_chart" {
+  type        = string
+  default     = "tailscale-operator"
+  description = "Name of the Helm chart used for deploying Tailscale Operator."
+}
+
+variable "tailscale_helm_version" {
+  type        = string
+  default     = "1.84.3"
+  description = "Version of the Tailscale Operator Helm chart to deploy."
+}
+
+variable "tailscale_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the Tailscale Operator chart deployment. These values will merge with and will override the default values provided by the Tailscale Operator Helm chart."
+}
+
+variable "tailscale_oauth_client_id" {
+  type        = string
+  default     = ""
+  description = "OAuth client ID for Tailscale Kubernetes Operator. Required when tailscale_enabled is true. Create this in the Tailscale admin console under OAuth clients with 'Devices Core' and 'Auth Keys' write scopes."
+  sensitive   = true
+
+  validation {
+    condition     = !var.tailscale_enabled || var.tailscale_oauth_client_id != ""
+    error_message = "tailscale_oauth_client_id must be provided when tailscale_enabled is true."
+  }
+}
+
+variable "tailscale_oauth_client_secret" {
+  type        = string
+  default     = ""
+  description = "OAuth client secret for Tailscale Kubernetes Operator. Required when tailscale_enabled is true. This is the secret corresponding to the OAuth client ID."
+  sensitive   = true
+
+  validation {
+    condition     = !var.tailscale_enabled || var.tailscale_oauth_client_secret != ""
+    error_message = "tailscale_oauth_client_secret must be provided when tailscale_enabled is true."
+  }
+}
+
+variable "tailscale_tailnet" {
+  type        = string
+  default     = ""
+  description = "Tailnet name for Tailscale ingress configuration. This should be your tailnet's domain name (e.g., 'example.ts.net')."
+}
+
+variable "location" {
+  type        = string
+  default     = "fsn1"
+  description = "The Hetzner Cloud location/region where resources will be deployed (e.g., 'fsn1', 'nbg1', 'hel1')."
+}
+
+# VictoriaMetrics
+variable "victoriametrics_helm_repository" {
+  type        = string
+  default     = "https://victoriametrics.github.io/helm-charts/"
+  description = "URL of the Helm repository where the VictoriaMetrics K8s Stack chart is located."
+}
+
+variable "victoriametrics_helm_chart" {
+  type        = string
+  default     = "victoria-metrics-k8s-stack"
+  description = "Name of the Helm chart used for deploying VictoriaMetrics K8s Stack."
+}
+
+variable "victoriametrics_helm_version" {
+  type        = string
+  default     = "0.55.2"
+  description = "Version of the VictoriaMetrics K8s Stack Helm chart to deploy."
+}
+
+variable "victoriametrics_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the VictoriaMetrics K8s Stack chart deployment. These values will merge with and will override the default values provided by the VictoriaMetrics K8s Stack Helm chart."
+}
+
+variable "victoriametrics_enabled" {
+  type        = bool
+  default     = true
+  description = "Enables the deployment of VictoriaMetrics K8s Stack for metrics collection and monitoring."
+}
+
+variable "victoriametrics_grafana_database_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables PostgreSQL database for Grafana in VictoriaMetrics stack using CloudNative-PG. Requires both victoriametrics_enabled and cloudnative_pg_enabled to be true."
+
+  validation {
+    condition     = !var.victoriametrics_grafana_database_enabled || (var.victoriametrics_enabled && var.cloudnative_pg_enabled)
+    error_message = "victoriametrics_grafana_database_enabled can only be true when both victoriametrics_enabled and cloudnative_pg_enabled are true."
+  }
+}
+
+variable "victoriametrics_alertmanager_pushover_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables Pushover notifications for VictoriaMetrics Alertmanager. Requires victoriametrics_enabled to be true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_pushover_enabled || var.victoriametrics_enabled
+    error_message = "victoriametrics_alertmanager_pushover_enabled can only be true when victoriametrics_enabled is also true."
+  }
+}
+
+variable "victoriametrics_alertmanager_pushover_token" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Pushover application token for VictoriaMetrics Alertmanager notifications. Required when victoriametrics_alertmanager_pushover_enabled is true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_pushover_enabled || var.victoriametrics_alertmanager_pushover_token != ""
+    error_message = "victoriametrics_alertmanager_pushover_token must be provided when victoriametrics_alertmanager_pushover_enabled is true."
+  }
+}
+
+variable "victoriametrics_alertmanager_pushover_user_key" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Pushover user key for VictoriaMetrics Alertmanager notifications. Required when victoriametrics_alertmanager_pushover_enabled is true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_pushover_enabled || var.victoriametrics_alertmanager_pushover_user_key != ""
+    error_message = "victoriametrics_alertmanager_pushover_user_key must be provided when victoriametrics_alertmanager_pushover_enabled is true."
+  }
+}
+
+variable "victoriametrics_alertmanager_pushover_priority" {
+  type        = number
+  default     = 0
+  description = "Pushover message priority for VictoriaMetrics Alertmanager notifications. Valid values: -2 (lowest), -1 (low), 0 (normal), 1 (high), 2 (emergency)."
+
+  validation {
+    condition     = contains([-2, -1, 0, 1, 2], var.victoriametrics_alertmanager_pushover_priority)
+    error_message = "victoriametrics_alertmanager_pushover_priority must be one of: -2 (lowest), -1 (low), 0 (normal), 1 (high), 2 (emergency)."
+  }
+}
+
+variable "victoriametrics_alertmanager_pushover_sound" {
+  type        = string
+  default     = "pushover"
+  description = "Pushover notification sound for VictoriaMetrics Alertmanager notifications. Common values: pushover, bike, bugle, cashregister, classical, cosmic, falling, gamelan, incoming, intermission, magic, mechanical, pianobar, siren, spacealarm, tugboat, alien, climb, persistent, echo, updown, none."
+}
+
+variable "victoriametrics_alertmanager_email_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables email notifications for VictoriaMetrics Alertmanager. Requires victoriametrics_enabled to be true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_email_enabled || var.victoriametrics_enabled
+    error_message = "victoriametrics_alertmanager_email_enabled can only be true when victoriametrics_enabled is also true."
+  }
+}
+
+variable "victoriametrics_alertmanager_email_smtp_host" {
+  type        = string
+  default     = ""
+  description = "SMTP server hostname for VictoriaMetrics Alertmanager email notifications. Required when victoriametrics_alertmanager_email_enabled is true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_email_enabled || var.victoriametrics_alertmanager_email_smtp_host != ""
+    error_message = "victoriametrics_alertmanager_email_smtp_host must be provided when victoriametrics_alertmanager_email_enabled is true."
+  }
+}
+
+variable "victoriametrics_alertmanager_email_smtp_port" {
+  type        = number
+  default     = 587
+  description = "SMTP server port for VictoriaMetrics Alertmanager email notifications. Common values: 25 (unencrypted), 587 (STARTTLS), 465 (SSL/TLS)."
+
+  validation {
+    condition     = var.victoriametrics_alertmanager_email_smtp_port > 0 && var.victoriametrics_alertmanager_email_smtp_port <= 65535
+    error_message = "victoriametrics_alertmanager_email_smtp_port must be a valid port number between 1 and 65535."
+  }
+}
+
+variable "victoriametrics_alertmanager_email_smtp_username" {
+  type        = string
+  default     = ""
+  description = "SMTP username for VictoriaMetrics Alertmanager email notifications. Required when victoriametrics_alertmanager_email_enabled is true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_email_enabled || var.victoriametrics_alertmanager_email_smtp_username != ""
+    error_message = "victoriametrics_alertmanager_email_smtp_username must be provided when victoriametrics_alertmanager_email_enabled is true."
+  }
+}
+
+variable "victoriametrics_alertmanager_email_smtp_password" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "SMTP password for VictoriaMetrics Alertmanager email notifications. Required when victoriametrics_alertmanager_email_enabled is true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_email_enabled || var.victoriametrics_alertmanager_email_smtp_password != ""
+    error_message = "victoriametrics_alertmanager_email_smtp_password must be provided when victoriametrics_alertmanager_email_enabled is true."
+  }
+}
+
+variable "victoriametrics_alertmanager_email_from" {
+  type        = string
+  default     = ""
+  description = "From email address for VictoriaMetrics Alertmanager email notifications. Required when victoriametrics_alertmanager_email_enabled is true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_email_enabled || var.victoriametrics_alertmanager_email_from != ""
+    error_message = "victoriametrics_alertmanager_email_from must be provided when victoriametrics_alertmanager_email_enabled is true."
+  }
+}
+
+variable "victoriametrics_alertmanager_email_to" {
+  type        = string
+  default     = ""
+  description = "Email address for VictoriaMetrics Alertmanager email notifications. Required when victoriametrics_alertmanager_email_enabled is true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_email_enabled || var.victoriametrics_alertmanager_email_to != ""
+    error_message = "victoriametrics_alertmanager_email_to must contain email address when victoriametrics_alertmanager_email_enabled is true."
+  }
+}
+
+variable "victoriametrics_alertmanager_email_subject" {
+  type        = string
+  default     = "[{{ .Status | toUpper }}{{ if eq .Status \"firing\" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join \" \" }} {{ if gt (len .CommonLabels) (len .GroupLabels) }}({{ with .CommonLabels.Remove .GroupLabels.Names }}{{ .Values | join \" \" }}{{ end }}){{ end }}"
+  description = "Email subject template for VictoriaMetrics Alertmanager email notifications. Supports Go templating."
+}
+
+variable "victoriametrics_alertmanager_email_require_tls" {
+  type        = bool
+  default     = true
+  description = "Require TLS for SMTP connection in VictoriaMetrics Alertmanager email notifications."
+}
+
+
+# VictoriaLogs
+variable "victorialogs_helm_repository" {
+  type        = string
+  default     = "https://victoriametrics.github.io/helm-charts/"
+  description = "URL of the Helm repository where the VictoriaLogs Single chart is located."
+}
+
+variable "victorialogs_helm_chart" {
+  type        = string
+  default     = "victoria-logs-single"
+  description = "Name of the Helm chart used for deploying VictoriaLogs Single."
+}
+
+variable "victorialogs_helm_version" {
+  type        = string
+  default     = "0.11.3"
+  description = "Version of the VictoriaLogs Single Helm chart to deploy."
+}
+
+variable "victorialogs_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the VictoriaLogs Single chart deployment. These values will merge with and will override the default values provided by the VictoriaLogs Single Helm chart."
+}
+
+variable "victorialogs_enabled" {
+  type        = bool
+  default     = true
+  description = "Enables the deployment of VictoriaLogs Single for logs storage."
+}
+
+# Grafana Operator
+variable "grafana_operator_helm_repository" {
+  type        = string
+  default     = "oci://ghcr.io/grafana/helm-charts"
+  description = "URL of the Helm repository where the Grafana Operator chart is located."
+}
+
+variable "grafana_operator_helm_chart" {
+  type        = string
+  default     = "grafana-operator"
+  description = "Name of the Helm chart used for deploying Grafana Operator."
+}
+
+variable "grafana_operator_helm_version" {
+  type        = string
+  default     = "v5.18.0"
+  description = "Version of the Grafana Operator Helm chart to deploy."
+}
+
+variable "grafana_operator_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the Grafana Operator chart deployment. These values will merge with and will override the default values provided by the Grafana Operator Helm chart."
+}
+
+variable "grafana_operator_enabled" {
+  type        = bool
+  default     = true
+  description = "Enables the deployment of Grafana Operator for managing Grafana instances."
+}
+
+variable "grafana_enabled" {
+  type        = bool
+  default     = true
+  description = "Enables the deployment of a Grafana instance using the Grafana Operator. Requires grafana_operator_enabled to be true."
+
+  validation {
+    condition     = !var.grafana_enabled || var.grafana_operator_enabled
+    error_message = "grafana_enabled can only be true when grafana_operator_enabled is also true."
+  }
+}
+
+variable "grafana_admin_user" {
+  type        = string
+  default     = "admin"
+  description = "Admin username for the Grafana instance."
+}
+
+variable "grafana_admin_password" {
+  type        = string
+  default     = "admin"
+  sensitive   = true
+  description = "Admin password for the Grafana instance."
+}
+
+# Argo CD
+variable "argocd_helm_repository" {
+  type        = string
+  default     = "https://argoproj.github.io/argo-helm"
+  description = "URL of the Helm repository where the Argo CD chart is located."
+}
+
+variable "argocd_helm_chart" {
+  type        = string
+  default     = "argo-cd"
+  description = "Name of the Helm chart used for deploying Argo CD."
+}
+
+variable "argocd_helm_version" {
+  type        = string
+  default     = "8.1.2"
+  description = "Version of the Argo CD Helm chart to deploy."
+}
+
+variable "argocd_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the Argo CD chart deployment. These values will merge with and will override the default values provided by the Argo CD Helm chart."
+}
+
+variable "argocd_enabled" {
+  type        = bool
+  default     = true
+  description = "Enables the deployment of Argo CD."
+}
+
+# Argo Workflows
+variable "argo_workflows_helm_repository" {
+  type        = string
+  default     = "https://argoproj.github.io/argo-helm"
+  description = "URL of the Helm repository where the Argo Workflows chart is located."
+}
+
+variable "argo_workflows_helm_chart" {
+  type        = string
+  default     = "argo-workflows"
+  description = "Name of the Helm chart used for deploying Argo Workflows."
+}
+
+variable "argo_workflows_helm_version" {
+  type        = string
+  default     = "0.45.19"
+  description = "Version of the Argo Workflows Helm chart to deploy."
+}
+
+variable "argo_workflows_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the Argo Workflows chart deployment. These values will merge with and will override the default values provided by the Argo Workflows Helm chart."
+}
+
+variable "argo_workflows_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables the deployment of Argo Workflows."
+}
+
+variable "argo_workflows_managed_namespaces" {
+  type        = list(string)
+  default     = ["argo-workflows-managed"]
+  description = "A list of namespaces where workflows will be managed by Argo Workflows."
+}
