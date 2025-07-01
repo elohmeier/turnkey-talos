@@ -42,10 +42,10 @@ module "k8s" {
   cluster_autoscaler_nodepools = [
     {
       name     = "autoscaler"
-      type     = "cpx11"
+      type     = "ccx53"
       location = "fsn1"
       min      = 0
-      max      = 2
+      max      = 4
       labels = {
         "autoscaler-node" = "true"
       }
