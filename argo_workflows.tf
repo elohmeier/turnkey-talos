@@ -71,6 +71,28 @@ locals {
     controller = merge(
       {
         workflowNamespaces = var.argo_workflows_managed_namespaces
+        links = [
+          {
+            name  = "Workflow Logs"
+            scope = "workflow"
+            url   = "https://${local.victorialogs_tailscale_hostname}.${var.tailscale_tailnet}/select/vmui/?#/?query=kubernetes.pod_namespace%3A+%22$${metadata.namespace}%22+AND+kubernetes.labels.workflows_argoproj_io%2Fworkflow%3A+%22$${metadata.name}%22&g0.range_input=1h&limit=1000"
+          },
+          {
+            name  = "Pod Logs"
+            scope = "pod"
+            url   = "https://${local.victorialogs_tailscale_hostname}.${var.tailscale_tailnet}/select/vmui/?#/?query=kubernetes.pod_namespace%3A+%22$${metadata.namespace}%22+AND+kubernetes.pod_name%3A+%22$${metadata.name}%22&g0.range_input=1h&limit=1000"
+          },
+          {
+            name  = "Pod Logs"
+            scope = "pod-logs"
+            url   = "https://${local.victorialogs_tailscale_hostname}.${var.tailscale_tailnet}/select/vmui/?#/?query=kubernetes.pod_namespace%3A+%22$${metadata.namespace}%22+AND+kubernetes.pod_name%3A+%22$${metadata.name}%22&g0.range_input=1h&limit=1000"
+          },
+          {
+            name  = "Pod Dashboard"
+            scope = "pod"
+            url   = "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}/d/k8s_views_pods/kubernetes-views-pods?var-namespace=$${metadata.namespace}&var-pod=$${metadata.name}"
+          }
+        ]
       },
       local.argo_workflows_node_placement,
       local.argo_workflows_monitoring,
