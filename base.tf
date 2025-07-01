@@ -45,7 +45,7 @@ module "k8s" {
       type     = "ccx53"
       location = "fsn1"
       min      = 0
-      max      = 4
+      max      = 8
       labels = {
         "autoscaler-node" = "true"
       }
