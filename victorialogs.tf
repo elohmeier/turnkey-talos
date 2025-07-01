@@ -56,16 +56,18 @@ locals {
 
     vector = {
       enabled = true
-      nodeSelector = var.worker_count == 0 ? {
-        "node-role.kubernetes.io/control-plane" = ""
-      } : {}
-      tolerations = var.worker_count == 0 ? [
+      tolerations = [
         {
-          key      = "node-role.kubernetes.io/control-plane"
+          key      = "autoscaler-node"
+          operator = "Equal"
+          value    = "true"
+          effect   = "NoExecute"
+        },
+        {
           operator = "Exists"
           effect   = "NoSchedule"
         }
-      ] : []
+      ]
       podHostNetwork = true
       dnsPolicy      = "ClusterFirstWithHostNet"
 

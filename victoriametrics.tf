@@ -208,6 +208,21 @@ EOT
       }
     }
 
+    prometheus-node-exporter = {
+      tolerations = [
+        {
+          key      = "autoscaler-node"
+          operator = "Equal"
+          value    = "true"
+          effect   = "NoExecute"
+        },
+        {
+          operator = "Exists"
+          effect   = "NoSchedule"
+        }
+      ]
+    }
+
     defaultDashboards = {
       enabled = true
       grafanaOperator = {

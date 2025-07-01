@@ -45,6 +45,20 @@ locals {
 
       clusterAgent = {
         enabled = true
+        podTemplate = {
+          tolerations = [
+            {
+              key      = "autoscaler-node"
+              operator = "Equal"
+              value    = "true"
+              effect   = "NoExecute"
+            },
+            {
+              operator = "Exists"
+              effect   = "NoSchedule"
+            }
+          ]
+        }
       }
     }
   }
