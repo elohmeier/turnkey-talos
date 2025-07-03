@@ -151,6 +151,24 @@ resource "kubernetes_secret_v1" "argo_workflows_s3_creds" {
   ]
 }
 
+resource "kubernetes_secret_v1" "argo_workflows_s3_creds_managed" {
+  for_each = var.argo_workflows_enabled ? toset(var.argo_workflows_managed_namespaces) : toset([])
+
+  metadata {
+    name      = "argo-workflows-s3-creds"
+    namespace = each.key
+  }
+
+  data = {
+    accessKey = var.s3_admin_access_key
+    secretKey = var.s3_admin_secret_key
+  }
+
+  depends_on = [
+    kubernetes_namespace_v1.argo_workflows_managed
+  ]
+}
+
 resource "helm_release" "argo_workflows" {
   count = var.argo_workflows_enabled ? 1 : 0
 
