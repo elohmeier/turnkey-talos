@@ -64,7 +64,7 @@ resource "kubernetes_manifest" "longhorn_prometheus_rules" {
                 description = "The actual space used by Longhorn volume {{$labels.volume}} on {{$labels.node}} is at {{$value}}% capacity for more than 5 minutes."
                 summary     = "The actual used space of Longhorn volume is over 90% of the capacity."
                 link        = "https://${local.longhorn_tailscale_hostname}.${var.tailscale_tailnet}/#/volume/{{$labels.volume}}"
-                dashboard   = "https://${local.grafana_tailscale_hostname}}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring?var-volume={{$labels.volume}}"
+                dashboard   = "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring?var-volume={{$labels.volume}}"
               }
               expr = "(longhorn_volume_actual_size_bytes / longhorn_volume_capacity_bytes) * 100 > 90"
               for  = "5m"
@@ -79,7 +79,7 @@ resource "kubernetes_manifest" "longhorn_prometheus_rules" {
                 description = "Longhorn volume {{$labels.volume}} on {{$labels.node}} is Fault for more than 2 minutes."
                 summary     = "Longhorn volume {{$labels.volume}} is Fault"
                 link        = "https://${local.longhorn_tailscale_hostname}.${var.tailscale_tailnet}/#/volume/{{$labels.volume}}"
-                dashboard   = var.victoriametrics_enabled ? "https://${coalesce(local.grafana_tailscale_hostname, "${var.cluster_name}-grafana")}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring?var-volume={{$labels.volume}}" : ""
+                dashboard   = var.victoriametrics_enabled ? "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring?var-volume={{$labels.volume}}" : ""
               }
               expr = "longhorn_volume_robustness == 3"
               for  = "5m"
@@ -94,7 +94,7 @@ resource "kubernetes_manifest" "longhorn_prometheus_rules" {
                 description = "Longhorn volume {{$labels.volume}} on {{$labels.node}} is Degraded for more than 5 minutes."
                 summary     = "Longhorn volume {{$labels.volume}} is Degraded"
                 link        = "https://${local.longhorn_tailscale_hostname}.${var.tailscale_tailnet}/#/volume/{{$labels.volume}}"
-                dashboard   = var.victoriametrics_enabled ? "https://${coalesce(local.grafana_tailscale_hostname, "${var.cluster_name}-grafana")}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring?var-volume={{$labels.volume}}" : ""
+                dashboard   = var.victoriametrics_enabled ? "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring?var-volume={{$labels.volume}}" : ""
               }
               expr = "longhorn_volume_robustness == 2"
               for  = "5m"
@@ -109,7 +109,7 @@ resource "kubernetes_manifest" "longhorn_prometheus_rules" {
                 description = "The used storage of node {{$labels.node}} is at {{$value}}% capacity for more than 5 minutes."
                 summary     = "The used storage of node is over 70% of the capacity."
                 link        = "https://${local.longhorn_tailscale_hostname}.${var.tailscale_tailnet}/#/node?field=name&value={{$labels.node}}"
-                dashboard   = var.victoriametrics_enabled ? "https://${coalesce(local.grafana_tailscale_hostname, "${var.cluster_name}-grafana")}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
+                dashboard   = var.victoriametrics_enabled ? "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
               }
               expr = "(longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes) * 100 > 70"
               for  = "5m"
@@ -124,7 +124,7 @@ resource "kubernetes_manifest" "longhorn_prometheus_rules" {
                 description = "The used storage of disk {{$labels.disk}} on node {{$labels.node}} is at {{$value}}% capacity for more than 5 minutes."
                 summary     = "The used storage of disk is over 70% of the capacity."
                 link        = "https://${local.longhorn_tailscale_hostname}.${var.tailscale_tailnet}/#/node?field=name&value={{$labels.node}}"
-                dashboard   = var.victoriametrics_enabled ? "https://${coalesce(local.grafana_tailscale_hostname, "${var.cluster_name}-grafana")}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
+                dashboard   = var.victoriametrics_enabled ? "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
               }
               expr = "(longhorn_disk_usage_bytes / longhorn_disk_capacity_bytes) * 100 > 70"
               for  = "5m"
@@ -138,7 +138,7 @@ resource "kubernetes_manifest" "longhorn_prometheus_rules" {
               annotations = {
                 description = "There are {{$value}} Longhorn nodes which have been offline for more than 5 minutes."
                 summary     = "Longhorn nodes is offline"
-                dashboard   = var.victoriametrics_enabled ? "https://${coalesce(local.grafana_tailscale_hostname, "${var.cluster_name}-grafana")}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
+                dashboard   = var.victoriametrics_enabled ? "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
               }
               expr = "(avg(longhorn_node_count_total) or on() vector(0)) - (count(longhorn_node_status{condition=\"ready\"} == 1) or on() vector(0)) > 0"
               for  = "5m"
@@ -153,7 +153,7 @@ resource "kubernetes_manifest" "longhorn_prometheus_rules" {
                 description = "Longhorn instance manager {{$labels.instance_manager}} on {{$labels.node}} has CPU Usage / CPU request is {{$value}}% for more than 5 minutes."
                 summary     = "Longhorn instance manager {{$labels.instance_manager}} on {{$labels.node}} has CPU Usage / CPU request is over 300%."
                 link        = "https://${local.longhorn_tailscale_hostname}.${var.tailscale_tailnet}/#/node?field=name&value={{$labels.node}}"
-                dashboard   = var.victoriametrics_enabled ? "https://${coalesce(local.grafana_tailscale_hostname, "${var.cluster_name}-grafana")}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
+                dashboard   = var.victoriametrics_enabled ? "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
               }
               expr = "(longhorn_instance_manager_cpu_usage_millicpu/longhorn_instance_manager_cpu_requests_millicpu) * 100 > 300"
               for  = "5m"
@@ -168,7 +168,7 @@ resource "kubernetes_manifest" "longhorn_prometheus_rules" {
                 description = "Longhorn node {{$labels.node}} has CPU Usage / CPU capacity is {{$value}}% for more than 5 minutes."
                 summary     = "Longhorn node {{$labels.node}} experiences high CPU pressure for more than 5m."
                 link        = "https://${local.longhorn_tailscale_hostname}.${var.tailscale_tailnet}/#/node?field=name&value={{$labels.node}}"
-                dashboard   = var.victoriametrics_enabled ? "https://${coalesce(local.grafana_tailscale_hostname, "${var.cluster_name}-grafana")}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
+                dashboard   = var.victoriametrics_enabled ? "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}/d/ozk-lh-mon/longhorn-monitoring" : ""
               }
               expr = "(longhorn_node_cpu_usage_millicpu / longhorn_node_cpu_capacity_millicpu) * 100 > 90"
               for  = "5m"
