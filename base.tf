@@ -168,6 +168,21 @@ module "k8s" {
   cert_manager_enabled  = true
   ingress_nginx_enabled = true
 
+  # Enable NGINX metrics for Prometheus monitoring
+  ingress_nginx_helm_values = {
+    controller = {
+      metrics = {
+        enabled = true
+        serviceMonitor = {
+          enabled = var.victoriametrics_enabled
+          additionalLabels = {
+            "prometheus.io/operator" = "victoriametrics"
+          }
+        }
+      }
+    }
+  }
+
   talos_extra_remote_manifests = [
     "https://github.com/grafana/grafana-operator/releases/download/v5.18.0/crds.yaml"
   ]
