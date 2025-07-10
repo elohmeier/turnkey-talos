@@ -41,9 +41,35 @@ module "k8s" {
 
   cluster_autoscaler_nodepools = [
     {
-      name     = "autoscaler"
+      name     = "autoscaler-fsn1"
       type     = "ccx53"
       location = "fsn1"
+      min      = 0
+      max      = 8
+      labels = {
+        "autoscaler-node" = "true"
+      }
+      taints = [
+        "autoscaler-node=true:NoExecute"
+      ]
+    },
+    {
+      name     = "autoscaler-nbg1"
+      type     = "ccx53"
+      location = "nbg1"
+      min      = 0
+      max      = 8
+      labels = {
+        "autoscaler-node" = "true"
+      }
+      taints = [
+        "autoscaler-node=true:NoExecute"
+      ]
+    },
+    {
+      name     = "autoscaler-hel1"
+      type     = "ccx53"
+      location = "hel1"
       min      = 0
       max      = 8
       labels = {
