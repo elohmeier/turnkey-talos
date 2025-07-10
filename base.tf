@@ -86,7 +86,7 @@ module "k8s" {
       name     = "autoscaler-cpx41-fsn1"
       type     = "cpx41"
       location = "fsn1"
-      min      = 0
+      min      = 4
       max      = 10
       labels = {
         "autoscaler-node" = "true"
