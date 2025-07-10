@@ -41,39 +41,84 @@ module "k8s" {
 
   cluster_autoscaler_nodepools = [
     {
-      name     = "autoscaler-fsn1"
+      name     = "autoscaler-ccx53-fsn1"
       type     = "ccx53"
       location = "fsn1"
       min      = 0
       max      = 8
       labels = {
         "autoscaler-node" = "true"
+        "node-type"       = "dedicated-vcpu"
       }
       taints = [
         "autoscaler-node=true:NoExecute"
       ]
     },
     {
-      name     = "autoscaler-nbg1"
+      name     = "autoscaler-ccx53-nbg1"
       type     = "ccx53"
       location = "nbg1"
       min      = 0
       max      = 8
       labels = {
         "autoscaler-node" = "true"
+        "node-type"       = "dedicated-vcpu"
       }
       taints = [
         "autoscaler-node=true:NoExecute"
       ]
     },
     {
-      name     = "autoscaler-hel1"
+      name     = "autoscaler-ccx53-hel1"
       type     = "ccx53"
       location = "hel1"
       min      = 0
       max      = 8
       labels = {
         "autoscaler-node" = "true"
+        "node-type"       = "dedicated-vcpu"
+      }
+      taints = [
+        "autoscaler-node=true:NoExecute"
+      ]
+    },
+    {
+      name     = "autoscaler-cpx41-fsn1"
+      type     = "cpx41"
+      location = "fsn1"
+      min      = 0
+      max      = 10
+      labels = {
+        "autoscaler-node" = "true"
+        "node-type"       = "shared-vcpu"
+      }
+      taints = [
+        "autoscaler-node=true:NoExecute"
+      ]
+    },
+    {
+      name     = "autoscaler-cpx41-nbg1"
+      type     = "cpx41"
+      location = "nbg1"
+      min      = 0
+      max      = 10
+      labels = {
+        "autoscaler-node" = "true"
+        "node-type"       = "shared-vcpu"
+      }
+      taints = [
+        "autoscaler-node=true:NoExecute"
+      ]
+    },
+    {
+      name     = "autoscaler-cpx41-hel1"
+      type     = "cpx41"
+      location = "hel1"
+      min      = 0
+      max      = 10
+      labels = {
+        "autoscaler-node" = "true"
+        "node-type"       = "shared-vcpu"
       }
       taints = [
         "autoscaler-node=true:NoExecute"
