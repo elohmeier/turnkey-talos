@@ -251,6 +251,10 @@ module "k8s" {
           }
         }
       }
+      allowSnippetAnnotations = true
+      config = {
+        annotations-risk-level = "Critical"
+      }
     }
   }
 
