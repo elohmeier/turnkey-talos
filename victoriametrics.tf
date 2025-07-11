@@ -31,6 +31,19 @@ locals {
             }
           }
         }
+        # see https://docs.victoriametrics.com/operator/configuration/#environment-variables for the operator defaults
+        resources = {
+          limits = {
+            cpu = "1200m" # operator default
+            # memory = "1500Mi" # operator default
+            memory = "2500Mi"
+          }
+          requests = {
+            cpu = "150m" # operator default
+            # memory = "500Mi" # operator default
+            memory = "1500Mi"
+          }
+        }
       }
       ingress = {
         enabled          = local.victoriametrics_tailscale_ingress_enabled
