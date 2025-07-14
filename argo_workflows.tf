@@ -99,6 +99,7 @@ locals {
       local.argo_workflows_controller_ha
     )
     artifactRepository = {
+      archiveLogs = true
       s3 = {
         bucket   = local.argo_workflows_artifact_s3_bucket_name
         endpoint = local.argo_workflows_artifact_s3_endpoint
