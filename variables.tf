@@ -42,6 +42,49 @@ variable "worker_count" {
   }
 }
 
+variable "cluster_autoscaler_nodepools" {
+  type = list(object({
+    name        = string
+    location    = string
+    type        = string
+    labels      = optional(map(string), {})
+    annotations = optional(map(string), {})
+    taints      = optional(list(string), [])
+    min         = optional(number, 0)
+    max         = number
+  }))
+  default     = []
+  description = "Defines configuration settings for Autoscaler node pools within the cluster."
+
+  validation {
+    condition     = length(var.cluster_autoscaler_nodepools) == length(distinct([for np in var.cluster_autoscaler_nodepools : np.name]))
+    error_message = "Autoscaler nodepool names must be unique to avoid configuration conflicts."
+  }
+
+  validation {
+    condition = alltrue([
+      for np in var.cluster_autoscaler_nodepools : np.max >= coalesce(np.min, 0)
+    ])
+    error_message = "Max size of a nodepool must be greater than or equal to its Min size."
+  }
+
+  validation {
+    condition = alltrue([
+      for np in var.cluster_autoscaler_nodepools : contains([
+        "fsn1", "nbg1", "hel1", "ash", "hil", "sin"
+      ], np.location)
+    ])
+    error_message = "Each nodepool location must be one of: 'fsn1' (Falkenstein), 'nbg1' (Nuremberg), 'hel1' (Helsinki), 'ash' (Ashburn), 'hil' (Hillsboro), 'sin' (Singapore)."
+  }
+
+  validation {
+    condition = alltrue([
+      for np in var.cluster_autoscaler_nodepools : length(var.cluster_name) + length(np.name) <= 56
+    ])
+    error_message = "The combined length of the cluster name and any Cluster Autoscaler nodepool name must not exceed 56 characters."
+  }
+}
+
 variable "s3_admin_access_key" {
   type        = string
   sensitive   = true
