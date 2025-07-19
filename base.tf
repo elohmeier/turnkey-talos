@@ -33,10 +33,10 @@ module "k8s" {
   hcloud_token              = var.hcloud_token
 
   control_plane_nodepools = [
-    { name = "control", type = "ccx13", location = var.location, count = var.control_plane_count }
+    { name = "control", type = var.control_plane_type, location = var.location, count = var.control_plane_count }
   ]
   worker_nodepools = [
-    { name = "worker", type = "ccx23", location = var.location, count = var.worker_count },
+    { name = "worker", type = var.worker_type, location = var.location, count = var.worker_count },
   ]
 
   cluster_autoscaler_nodepools = var.cluster_autoscaler_nodepools

@@ -42,6 +42,18 @@ variable "worker_count" {
   }
 }
 
+variable "control_plane_type" {
+  type        = string
+  default     = "ccx13"
+  description = "The Hetzner Cloud server type for control plane nodes. Examples: ccx13, cpx11, cx22, etc."
+}
+
+variable "worker_type" {
+  type        = string
+  default     = "ccx23"
+  description = "The Hetzner Cloud server type for worker nodes. Examples: ccx23, cpx21, cx32, etc."
+}
+
 variable "cluster_autoscaler_nodepools" {
   type = list(object({
     name        = string
