@@ -68,6 +68,32 @@ module "k8s" {
       backupTargetCredentialSecret = "longhorn-backup-secret"
       pollInterval                 = 300
     }
+    defaultSettings = {
+      # Storage optimization settings
+      storageOverProvisioningPercentage = 90 # Reduce from 100% to prevent over-allocation
+      storageMinimalAvailablePercentage = 20 # Reduce from 25% to allow more usable space
+
+      # Automatic cleanup settings
+      autoCleanupSystemGeneratedSnapshot              = true
+      autoCleanupRecurringJobBackupSnapshot           = true
+      autoCleanupSnapshotWhenDeleteBackup             = true
+      autoCleanupSnapshotAfterOnDemandBackupCompleted = true
+
+      # Orphan resource management
+      orphanResourceAutoDeletion            = true
+      orphanResourceAutoDeletionGracePeriod = 300
+
+      # Snapshot management
+      snapshotMaxCount = 50 # Reduce from 250 to limit snapshot proliferation
+
+      # Replica optimization
+      defaultReplicaCount     = 2             # Reduce from 3 for non-critical workloads
+      replicaSoftAntiAffinity = true          # Better distribution with softer constraints
+      replicaAutoBalance      = "best-effort" # Automatically rebalance replicas
+
+      # Performance settings
+      guaranteedInstanceManagerCPU = 10 # Reserve minimal CPU (10m) for better density
+    }
   }
 
   # Cilium monitoring
