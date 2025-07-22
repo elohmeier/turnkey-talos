@@ -1,0 +1,21 @@
+{{- if .Values.user.enabled }}
+apiVersion: kaniop.rs/v1beta1
+kind: KanidmPersonAccount
+metadata:
+  name: {{ .Values.user.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  kanidmRef:
+    name: {{ .Release.Name }}
+  personAttributes:
+    displayname: {{ .Values.user.displayName }}
+    {{- if .Values.user.mail }}
+    mail:
+    {{- range .Values.user.mail }}
+    - {{ . }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.user.legalName }}
+    legalname: {{ .Values.user.legalName }}
+    {{- end }}
+{{- end }}

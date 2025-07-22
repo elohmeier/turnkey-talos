@@ -638,3 +638,179 @@ variable "argo_workflows_managed_namespaces" {
   default     = ["argo-workflows-managed"]
   description = "A list of namespaces where workflows will be managed by Argo Workflows."
 }
+
+# Kanidm (via KaniOP)
+variable "kanidm_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables the deployment of Kanidm identity management system via KaniOP."
+}
+
+variable "kaniop_helm_repository" {
+  type        = string
+  default     = "oci://ghcr.io/pando85/helm-charts"
+  description = "URL of the Helm repository where the KaniOP chart is located."
+}
+
+variable "kaniop_helm_chart" {
+  type        = string
+  default     = "kaniop"
+  description = "Name of the Helm chart used for deploying KaniOP."
+}
+
+variable "kaniop_helm_version" {
+  type        = string
+  default     = "0.0.0-alpha.1"
+  description = "Version of the KaniOP Helm chart to deploy."
+}
+
+variable "kaniop_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the KaniOP chart deployment. These values will merge with and will override the default values provided by the KaniOP Helm chart."
+}
+
+variable "kaniop_image_repository" {
+  type        = string
+  default     = "ghcr.io/pando85/kaniop"
+  description = "Docker image repository for KaniOP."
+}
+
+variable "kaniop_image_tag" {
+  type        = string
+  default     = "latest"
+  description = "Docker image tag for KaniOP."
+}
+
+variable "kanidm_helm_repository" {
+  type        = string
+  default     = ""
+  description = "URL of the Helm repository where the Kanidm chart is located. If empty, expects a local chart path."
+}
+
+variable "kanidm_helm_chart" {
+  type        = string
+  default     = "kanidm"
+  description = "Name of the Helm chart used for deploying Kanidm when using a repository. Ignored when repository is empty (uses local chart)."
+}
+
+variable "kanidm_helm_version" {
+  type        = string
+  default     = ""
+  description = "Version of the Kanidm Helm chart to deploy. Leave empty for local charts."
+}
+
+variable "kanidm_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the Kanidm chart deployment. These values will merge with and will override the default values provided by the Kanidm Helm chart."
+}
+
+variable "kanidm_domain" {
+  type        = string
+  default     = ""
+  description = "Domain name for Kanidm. If not set, defaults to tailscale hostname when tailscale is enabled, otherwise cluster_name.local."
+}
+
+variable "kanidm_replicas" {
+  type        = number
+  default     = 1
+  description = "Number of Kanidm server replicas to deploy."
+}
+
+variable "kanidm_image" {
+  type        = string
+  default     = "kanidm/server:latest"
+  description = "Docker image to use for Kanidm server."
+}
+
+variable "kanidm_image_pull_policy" {
+  type        = string
+  default     = "IfNotPresent"
+  description = "Image pull policy for Kanidm server."
+}
+
+variable "kanidm_storage_size" {
+  type        = string
+  default     = "1Gi"
+  description = "Storage size for Kanidm persistent volume claim."
+}
+
+variable "kanidm_cert_issuer" {
+  type        = string
+  default     = "selfsigned-issuer"
+  description = "Certificate issuer name for Kanidm TLS certificates."
+}
+
+variable "kanidm_cert_issuer_kind" {
+  type        = string
+  default     = "Issuer"
+  description = "Certificate issuer kind (Issuer or ClusterIssuer)."
+}
+
+variable "kanidm_ingress_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable ingress for Kanidm."
+}
+
+variable "kanidm_initial_user" {
+  type = object({
+    enabled     = bool
+    name        = string
+    displayName = string
+    mail        = list(string)
+  })
+  default = {
+    enabled     = false
+    name        = ""
+    displayName = ""
+    mail        = []
+  }
+  description = "Initial Kanidm user configuration."
+}
+
+variable "kanidm_grafana_oauth_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable OAuth2 integration between Grafana and Kanidm."
+}
+
+variable "kanidm_oauth2_clients" {
+  type = list(object({
+    name         = string
+    displayName  = string
+    origin       = string
+    redirectUrls = list(string)
+    scopeMap = list(object({
+      group  = string
+      scopes = list(string)
+    }))
+    supScopeMap = optional(list(object({
+      group  = string
+      scopes = list(string)
+    })))
+    public                         = optional(bool)
+    strictRedirectUrl              = optional(bool)
+    preferShortUsername            = optional(bool)
+    allowLocalhostRedirect         = optional(bool)
+    allowInsecureClientDisablePkce = optional(bool)
+  }))
+  default     = []
+  description = "List of OAuth2 clients to configure in Kanidm."
+}
+
+variable "kanidm_groups" {
+  type = list(object({
+    name    = string
+    members = optional(list(string))
+  }))
+  default     = []
+  description = "List of groups to create in Kanidm."
+}
+
+variable "kanidm_argo_workflows_oauth_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable OAuth2 integration between Argo Workflows and Kanidm."
+}

@@ -1,0 +1,68 @@
+domain: kanidm.example.com
+
+replicaGroups:
+  - name: default
+    replicas: 1
+
+image: kanidm/server:latest
+imagePullPolicy: IfNotPresent
+
+storage:
+  volumeClaimTemplate:
+    metadata:
+      name: kanidm-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+
+certManager:
+  enabled: true
+  issuer: selfsigned-issuer
+  issuerKind: Issuer
+
+ingress:
+  enabled: true
+  className: nginx
+  host: kanidm.example.com
+
+user:
+  enabled: false
+  name: admin
+  displayName: Admin User
+  mail:
+    - admin@kanidm.example.com
+
+tolerations: []
+nodeSelector: {}
+
+oauth2Clients: []
+# - name: grafana
+#   displayName: Grafana
+#   origin: https://grafana.example.com
+#   redirectUrls:
+#     - https://grafana.example.com/login/generic_oauth
+#   scopeMap:
+#     - group: grafana-users
+#       scopes:
+#         - openid
+#         - profile
+#         - email
+#         - groups
+#   supScopeMap:
+#     - group: grafana-admins
+#       scopes:
+#         - admin
+#     - group: grafana-editors
+#       scopes:
+#         - editor
+
+groups: []
+# - name: grafana-users
+#   members: []
+# - name: grafana-admins
+#   members: []
+# - name: grafana-editors
+#   members: []

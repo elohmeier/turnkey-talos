@@ -1,0 +1,6 @@
+apiVersion: v2
+name: kanidm
+description: A Helm chart for Kanidm identity management system
+type: application
+version: 0.0.1
+appVersion: "latest"

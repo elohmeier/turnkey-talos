@@ -23,3 +23,8 @@ output "tailscale_urls" {
   description = "Map of URLs to tailscale exposed services."
   value       = local.tailscale_urls
 }
+
+output "kanidm_url" {
+  description = "URL to access Kanidm identity management system."
+  value       = var.kanidm_enabled ? (var.tailscale_enabled ? "https://${local.kanidm_tailscale_hostname}.${var.tailscale_tailnet}" : "https://${local.kanidm_domain}") : null
+}

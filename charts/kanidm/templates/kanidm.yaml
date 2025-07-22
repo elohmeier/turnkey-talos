@@ -1,0 +1,37 @@
+apiVersion: kaniop.rs/v1beta1
+kind: Kanidm
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  domain: {{ .Values.domain }}
+{{- if hasKey .Values "oauth2ClientNamespaceSelector" }}
+  oauth2ClientNamespaceSelector:
+{{- if .Values.oauth2ClientNamespaceSelector }}
+{{- toYaml .Values.oauth2ClientNamespaceSelector | nindent 4 }}
+{{- else }}
+    {}
+{{- end }}
+{{- end }}
+  replicaGroups:
+{{- range .Values.replicaGroups }}
+  - name: {{ .name }}
+    replicas: {{ .replicas }}
+{{- end }}
+  image: {{ .Values.image }}
+  imagePullPolicy: {{ .Values.imagePullPolicy }}
+{{- if .Values.certManager.enabled }}
+  tlsSecretName: {{ .Release.Name }}-tls
+{{- end }}
+{{- if .Values.storage }}
+  storage:
+{{- toYaml .Values.storage | nindent 4 }}
+{{- end }}
+{{- if .Values.tolerations }}
+  tolerations:
+{{- toYaml .Values.tolerations | nindent 4 }}
+{{- end }}
+{{- if .Values.nodeSelector }}
+  nodeSelector:
+{{- toYaml .Values.nodeSelector | nindent 4 }}
+{{- end }}

@@ -1,0 +1,54 @@
+{{- if .Values.oauth2Clients }}
+{{- range .Values.oauth2Clients }}
+---
+apiVersion: kaniop.rs/v1beta1
+kind: KanidmOAuth2Client
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  kanidmRef:
+    name: {{ $.Release.Name }}
+  displayname: {{ .displayName }}
+  origin: {{ .origin }}
+  redirectUrl:
+  {{- range .redirectUrls }}
+  - {{ . | quote }}
+  {{- end }}
+  {{- if .public }}
+  public: {{ .public }}
+  {{- end }}
+  {{- if .scopeMap }}
+  scopeMap:
+  {{- range .scopeMap }}
+  - group: {{ .group }}
+    scopes:
+    {{- range .scopes }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .supScopeMap }}
+  supScopeMap:
+  {{- range .supScopeMap }}
+  - group: {{ .group }}
+    scopes:
+    {{- range .scopes }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .strictRedirectUrl }}
+  strictRedirectUrl: {{ .strictRedirectUrl }}
+  {{- end }}
+  {{- if .preferShortUsername }}
+  preferShortUsername: {{ .preferShortUsername }}
+  {{- end }}
+  {{- if .allowLocalhostRedirect }}
+  allowLocalhostRedirect: {{ .allowLocalhostRedirect }}
+  {{- end }}
+  {{- if .allowInsecureClientDisablePkce }}
+  allowInsecureClientDisablePkce: {{ .allowInsecureClientDisablePkce }}
+  {{- end }}
+{{- end }}
+{{- end }}
