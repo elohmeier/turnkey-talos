@@ -254,7 +254,7 @@ variable "tailscale_helm_chart" {
 
 variable "tailscale_helm_version" {
   type        = string
-  default     = "1.84.3"
+  default     = "1.86.5"
   description = "Version of the Tailscale Operator Helm chart to deploy."
 }
 
@@ -569,6 +569,34 @@ variable "grafana_admin_password" {
   default     = "admin"
   sensitive   = true
   description = "Admin password for the Grafana instance."
+}
+
+variable "grafana_ha_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable high availability for Grafana. When true, multiple replicas and database clustering are configured based on node count."
+}
+
+variable "grafana_replicas" {
+  type        = number
+  default     = 0
+  description = "Number of Grafana replicas. Set to 0 to use automatic calculation based on grafana_ha_enabled and node count."
+
+  validation {
+    condition     = var.grafana_replicas >= 0
+    error_message = "grafana_replicas must be 0 or greater."
+  }
+}
+
+variable "grafana_database_replicas" {
+  type        = number
+  default     = 0
+  description = "Number of Grafana database replicas (CloudNative-PG instances). Set to 0 to use automatic calculation based on grafana_ha_enabled and node count."
+
+  validation {
+    condition     = var.grafana_database_replicas >= 0
+    error_message = "grafana_database_replicas must be 0 or greater."
+  }
 }
 
 # Argo CD

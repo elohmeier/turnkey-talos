@@ -5,6 +5,19 @@ locals {
   grafana_database_user      = "grafana"
   grafana_tailscale_hostname = "${var.cluster_name}-grafana"
 
+  # Calculate the number of nodes available
+  node_count = var.worker_count > 0 ? var.worker_count : var.control_plane_count
+
+  # Grafana replicas logic
+  grafana_replicas = var.grafana_replicas > 0 ? var.grafana_replicas : (
+    var.grafana_ha_enabled && local.grafana_database_enabled && local.node_count > 1 ? 2 : 1
+  )
+
+  # Database replicas logic
+  grafana_database_replicas = var.grafana_database_replicas > 0 ? var.grafana_database_replicas : (
+    var.grafana_ha_enabled && local.node_count > 1 ? 3 : 1
+  )
+
   grafana_operator_values = {
     # node tolerations for control-plane only clusters
     tolerations = var.worker_count == 0 ? [
@@ -131,7 +144,7 @@ resource "helm_release" "grafana_db" {
           mode = "standalone"
 
           cluster = {
-            instances = (var.worker_count > 0 ? var.worker_count : var.control_plane_count) > 1 ? 3 : 1
+            instances = local.grafana_database_replicas
 
             affinity = {
               topologyKey = "kubernetes.io/hostname"
@@ -188,54 +201,73 @@ resource "kubernetes_manifest" "grafana_instance" {
       disableDefaultAdminSecret = true
       deployment = {
         spec = {
-          replicas = local.grafana_database_enabled && (var.worker_count > 0 ? var.worker_count : var.control_plane_count) > 1 ? 2 : 1
+          replicas = local.grafana_replicas
           template = {
-            spec = {
-              containers = [
-                {
-                  name = "grafana"
-                  env = [
-                    {
-                      name = "GF_SECURITY_ADMIN_USER"
-                      valueFrom = {
-                        secretKeyRef = {
-                          key  = "GF_SECURITY_ADMIN_USER"
-                          name = "grafana-admin-credentials"
+            spec = merge(
+              {
+                containers = [
+                  {
+                    name = "grafana"
+                    volumeMounts = var.kanidm_enabled && var.kanidm_grafana_oauth_enabled ? [
+                      {
+                        name      = "oauth-secret"
+                        mountPath = "/etc/secrets/grafana-kanidm-oauth2-credentials"
+                        readOnly  = true
+                      }
+                    ] : []
+                    env = [
+                      {
+                        name = "GF_SECURITY_ADMIN_USER"
+                        valueFrom = {
+                          secretKeyRef = {
+                            key  = "GF_SECURITY_ADMIN_USER"
+                            name = "grafana-admin-credentials"
+                          }
+                        }
+                      },
+                      {
+                        name = "GF_SECURITY_ADMIN_PASSWORD"
+                        valueFrom = {
+                          secretKeyRef = {
+                            key  = "GF_SECURITY_ADMIN_PASSWORD"
+                            name = "grafana-admin-credentials"
+                          }
+                        }
+                      },
+                      {
+                        name = "GF_DATABASE_PASSWORD"
+                        valueFrom = {
+                          secretKeyRef = {
+                            key  = "password"
+                            name = "grafana-db-cluster-credentials"
+                          }
                         }
                       }
-                    },
-                    {
-                      name = "GF_SECURITY_ADMIN_PASSWORD"
-                      valueFrom = {
-                        secretKeyRef = {
-                          key  = "GF_SECURITY_ADMIN_PASSWORD"
-                          name = "grafana-admin-credentials"
-                        }
-                      }
-                    },
-                    {
-                      name = "GF_DATABASE_PASSWORD"
-                      valueFrom = {
-                        secretKeyRef = {
-                          key  = "password"
-                          name = "grafana-db-cluster-credentials"
-                        }
-                      }
+                    ]
+                  }
+                ]
+                tolerations = var.worker_count == 0 ? [
+                  {
+                    key      = "node-role.kubernetes.io/control-plane"
+                    operator = "Exists"
+                    effect   = "NoSchedule"
+                  }
+                ] : []
+                nodeSelector = var.worker_count == 0 ? {
+                  "node-role.kubernetes.io/control-plane" = ""
+                } : {}
+              },
+              var.kanidm_enabled && var.kanidm_grafana_oauth_enabled ? {
+                volumes = [
+                  {
+                    name = "oauth-secret"
+                    secret = {
+                      secretName = "grafana-kanidm-oauth2-credentials"
                     }
-                  ]
-                }
-              ]
-              tolerations = var.worker_count == 0 ? [
-                {
-                  key      = "node-role.kubernetes.io/control-plane"
-                  operator = "Exists"
-                  effect   = "NoSchedule"
-                }
-              ] : []
-              nodeSelector = var.worker_count == 0 ? {
-                "node-role.kubernetes.io/control-plane" = ""
+                  }
+                ]
               } : {}
-            }
+            )
           }
         }
       }
@@ -245,28 +277,49 @@ resource "kubernetes_manifest" "grafana_instance" {
             mode = "console"
           }
           auth = {
-            disable_login_form = "false"
+            disable_login_form = var.kanidm_enabled && var.kanidm_grafana_oauth_enabled ? "true" : "false"
           }
           server = {
             root_url = var.tailscale_enabled ? "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}" : ""
           }
         },
-        local.grafana_database_enabled ? {
-          database = {
-            type = "postgres"
-            host = "grafana-db-cluster-rw:5432"
-            name = "grafana"
-            user = local.grafana_database_user
+        var.kanidm_enabled && var.kanidm_grafana_oauth_enabled ? {
+          "auth.generic_oauth" = {
+            enabled                    = true
+            name                       = "Kanidm"
+            allow_sign_up              = true
+            client_id                  = "grafana"
+            client_secret              = "$__file{/etc/secrets/grafana-kanidm-oauth2-credentials/CLIENT_SECRET}"
+            scopes                     = "openid profile email groups"
+            auth_url                   = "https://${local.kanidm_domain}/ui/oauth2"
+            token_url                  = "https://${local.kanidm_domain}/oauth2/token"
+            api_url                    = "https://${local.kanidm_domain}/oauth2/openid/userinfo"
+            use_pkce                   = true
+            use_refresh_token          = true
+            role_attribute_path        = "contains(groups[*], 'grafana-admins@${local.kanidm_domain}') && 'Admin' || contains(groups[*], 'grafana-editors@${local.kanidm_domain}') && 'Editor' || 'Viewer'"
+            allow_assign_grafana_admin = true
           }
-          unified_alerting = {
-            enabled              = true
-            ha_listen_address    = "$${POD_IP}:9094"
-            ha_peers             = "grafana-alerting:9094"
-            ha_advertise_address = "$${POD_IP}:9094"
-            ha_peer_timeout      = "15s"
-            ha_reconnect_timeout = "2m"
-          }
-        } : {}
+        } : {},
+        local.grafana_database_enabled ? merge(
+          {
+            database = {
+              type = "postgres"
+              host = "grafana-db-cluster-rw:5432"
+              name = "grafana"
+              user = local.grafana_database_user
+            }
+          },
+          var.grafana_ha_enabled && local.grafana_replicas > 1 ? {
+            unified_alerting = {
+              enabled              = true
+              ha_listen_address    = "$${POD_IP}:9094"
+              ha_peers             = "grafana-alerting:9094"
+              ha_advertise_address = "$${POD_IP}:9094"
+              ha_peer_timeout      = "15s"
+              ha_reconnect_timeout = "2m"
+            }
+          } : {}
+        ) : {}
       )
     }
   }
@@ -274,7 +327,10 @@ resource "kubernetes_manifest" "grafana_instance" {
   depends_on = [
     helm_release.grafana_operator,
     helm_release.grafana_db,
-    kubernetes_secret.grafana_admin_credentials
+    kubernetes_secret.grafana_admin_credentials,
+    kubernetes_manifest.grafana_oauth2_client,
+    kubernetes_service_v1.grafana_tailscale_egress,
+    kubernetes_service_v1.kanidm_tailscale_egress
   ]
 }
 
@@ -359,5 +415,29 @@ resource "kubernetes_manifest" "grafana_home_dashboard" {
 
   depends_on = [
     helm_release.grafana_operator
+  ]
+}
+
+# Create ExternalName service for Grafana Tailscale egress
+resource "kubernetes_service_v1" "grafana_tailscale_egress" {
+  count = local.grafana_enabled && var.tailscale_enabled ? 1 : 0
+
+  metadata {
+    name      = "grafana-tailscale-egress"
+    namespace = "grafana"
+    annotations = {
+      "tailscale.com/tailnet-fqdn" = "${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}"
+    }
+  }
+
+  spec {
+    type          = "ExternalName"
+    external_name = "placeholder"
+  }
+
+  depends_on = [
+    helm_release.grafana_operator,
+    helm_release.tailscale,
+    helm_release.coredns
   ]
 }
