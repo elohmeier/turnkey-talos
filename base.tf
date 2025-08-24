@@ -28,6 +28,11 @@ module "k8s" {
   # source = "git::/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes?ref=main"
   source = "/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes"
 
+  talos_version                   = "v1.10.6"
+  kubernetes_version              = "v1.33.4"
+  cluster_autoscaler_helm_version = "9.50.1"
+  talos_backup_version            = "v0.1.0-beta.3"
+
   cluster_name              = var.cluster_name
   cluster_delete_protection = var.cluster_delete_protection
   hcloud_token              = var.hcloud_token
