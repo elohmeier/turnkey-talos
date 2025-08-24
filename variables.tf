@@ -873,3 +873,28 @@ variable "k8up_helm_values" {
   default     = {}
   description = "Additional Helm values to merge with k8up configuration"
 }
+
+# Prometheus Push Gateway
+variable "pushgateway_helm_repository" {
+  type        = string
+  default     = "https://prometheus-community.github.io/helm-charts"
+  description = "Helm repository URL for Prometheus Push Gateway chart"
+}
+
+variable "pushgateway_helm_chart" {
+  type        = string
+  default     = "prometheus-pushgateway"
+  description = "Name of the Prometheus Push Gateway Helm chart"
+}
+
+variable "pushgateway_helm_version" {
+  type        = string
+  default     = "2.17.0"
+  description = "Version of the Prometheus Push Gateway Helm chart to deploy"
+}
+
+variable "pushgateway_helm_values" {
+  type        = any
+  default     = {}
+  description = "Additional Helm values to merge with Prometheus Push Gateway configuration"
+}

@@ -17,6 +17,15 @@ locals {
 
     k8up = {
       skipWithoutAnnotation = true
+
+      # Configure Prometheus Push Gateway URL when VictoriaMetrics is enabled
+      # The push gateway will be scraped by VMAgent via ServiceMonitor
+      envVars = var.victoriametrics_enabled ? [
+        {
+          name  = "BACKUP_PROMURL"
+          value = "http://prometheus-pushgateway.pushgateway.svc.cluster.local:9091"
+        }
+      ] : []
     }
 
     # Metrics configuration
