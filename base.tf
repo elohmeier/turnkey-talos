@@ -212,7 +212,8 @@ module "k8s" {
   }
 
   talos_extra_remote_manifests = [
-    "https://github.com/grafana/grafana-operator/releases/download/v5.18.0/crds.yaml"
+    "https://github.com/grafana/grafana-operator/releases/download/${var.grafana_operator_helm_version}/crds.yaml",
+    "https://github.com/k8up-io/k8up/releases/download/k8up-${var.k8up_helm_version}/k8up-crd.yaml"
   ]
 
   # VictoriaLogs

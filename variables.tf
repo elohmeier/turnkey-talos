@@ -842,3 +842,34 @@ variable "kanidm_argo_workflows_oauth_enabled" {
   default     = false
   description = "Enable OAuth2 integration between Argo Workflows and Kanidm."
 }
+
+# k8up variables
+variable "k8up_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable k8up backup operator for Kubernetes backup and restore operations"
+}
+
+variable "k8up_helm_repository" {
+  type        = string
+  default     = "https://k8up-io.github.io/k8up"
+  description = "Helm repository URL for k8up chart"
+}
+
+variable "k8up_helm_chart" {
+  type        = string
+  default     = "k8up"
+  description = "Name of the k8up Helm chart"
+}
+
+variable "k8up_helm_version" {
+  type        = string
+  default     = "4.8.4"
+  description = "Version of the k8up Helm chart to deploy"
+}
+
+variable "k8up_helm_values" {
+  type        = any
+  default     = {}
+  description = "Additional Helm values to merge with k8up configuration"
+}
