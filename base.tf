@@ -185,6 +185,13 @@ module "k8s" {
   cert_manager_enabled  = true
   ingress_nginx_enabled = true
 
+  # Disable Talos CoreDNS to use our own
+  talos_coredns_enabled = false
+
+  # Set kubelet cluster DNS to match our CoreDNS service IP
+  # Dynamically calculated as the 10th IP in the service subnet
+  kubernetes_kubelet_cluster_dns = [cidrhost(module.k8s.network_service_ipv4_cidr, 10)]
+
   # Enable NGINX metrics for Prometheus monitoring
   ingress_nginx_helm_values = {
     controller = {

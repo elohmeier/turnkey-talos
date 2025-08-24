@@ -40,25 +40,28 @@ resource "helm_release" "tailscale" {
   ]
 }
 
-# resource "kubernetes_manifest" "tailscale_proxy_class_hcloud" {
-#   count = var.tailscale_enabled ? 1 : 0
-#
-#   manifest = {
-#     apiVersion = "tailscale.com/v1alpha1"
-#     kind       = "ProxyClass"
-#     metadata = {
-#       name = "hcloud"
-#     }
-#     spec = {
-#       statefulSet = {
-#         pod = {
-#           nodeSelector = {
-#             "node.cloudprovider.kubernetes.io/platform" = "hcloud"
-#           }
-#         }
-#       }
-#     }
-#   }
-#
-#   depends_on = [helm_release.tailscale]
-# }
+# DNSConfig for Tailscale MagicDNS resolution
+resource "kubernetes_manifest" "tailscale_dns_config" {
+  count = var.tailscale_enabled ? 1 : 0
+
+  manifest = {
+    apiVersion = "tailscale.com/v1alpha1"
+    kind       = "DNSConfig"
+    metadata = {
+      name = "ts-dns"
+    }
+    spec = {
+      nameserver = {
+        image = {
+          repo = "tailscale/k8s-nameserver"
+          tag  = "unstable"
+        }
+        service = {
+          clusterIP = cidrhost(module.k8s.network_service_ipv4_cidr, 253)
+        }
+      }
+    }
+  }
+
+  depends_on = [helm_release.tailscale]
+}
