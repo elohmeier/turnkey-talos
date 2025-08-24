@@ -64,7 +64,27 @@ locals {
         ingress = {
           enabled = false
         }
+        authModes = var.kanidm_enabled && var.kanidm_argo_workflows_oauth_enabled ? ["sso"] : ["client"]
       },
+      var.kanidm_enabled && var.kanidm_argo_workflows_oauth_enabled ? {
+        sso = {
+          enabled = true
+          issuer  = "https://${local.kanidm_domain}/oauth2/openid"
+          clientId = {
+            name = "argo-workflows-kanidm-oauth2-credentials"
+            key  = "CLIENT_ID"
+          }
+          clientSecret = {
+            name = "argo-workflows-kanidm-oauth2-credentials"
+            key  = "CLIENT_SECRET"
+          }
+          redirectUrl = var.tailscale_enabled ? "https://${local.argo_workflows_tailscale_hostname}.${var.tailscale_tailnet}/oauth2/callback" : "https://argo-workflows.${var.cluster_name}.local/oauth2/callback"
+          scopes      = ["openid", "profile", "email", "groups"]
+          rbac = {
+            enabled = true
+          }
+        }
+      } : {},
       local.argo_workflows_node_placement,
       local.argo_workflows_server_ha
     )
@@ -194,7 +214,77 @@ resource "helm_release" "argo_workflows" {
   depends_on = [
     kubernetes_namespace_v1.argo_workflows,
     kubernetes_namespace_v1.argo_workflows_managed,
-    kubernetes_secret_v1.argo_workflows_s3_creds
+    kubernetes_secret_v1.argo_workflows_s3_creds,
+    kubernetes_manifest.argo_workflows_oauth2_client,
+    kubernetes_service_v1.argo_workflows_tailscale_egress,
+    kubernetes_service_v1.kanidm_tailscale_egress
+  ]
+}
+
+# Create OAuth2 client for Argo Workflows
+resource "kubernetes_manifest" "argo_workflows_oauth2_client" {
+  count = var.argo_workflows_enabled && var.kanidm_enabled && var.kanidm_argo_workflows_oauth_enabled ? 1 : 0
+
+  manifest = {
+    apiVersion = "kaniop.rs/v1beta1"
+    kind       = "KanidmOAuth2Client"
+    metadata = {
+      name      = "argo-workflows"
+      namespace = local.argo_workflows_namespace
+    }
+    spec = {
+      kanidmRef = {
+        name      = "kanidm"
+        namespace = "kanidm"
+      }
+      displayname = "Argo Workflows"
+      origin      = var.tailscale_enabled ? "https://${local.argo_workflows_tailscale_hostname}.${var.tailscale_tailnet}" : "https://argo-workflows.${var.cluster_name}.local"
+      redirectUrl = [
+        var.tailscale_enabled ? "https://${local.argo_workflows_tailscale_hostname}.${var.tailscale_tailnet}/oauth2/callback" : "https://argo-workflows.${var.cluster_name}.local/oauth2/callback"
+      ]
+      scopeMap = [
+        {
+          group  = "argo-workflows-users@${local.kanidm_domain}"
+          scopes = ["email", "groups", "openid", "profile"]
+        }
+      ]
+      supScopeMap = [
+        {
+          group  = "argo-workflows-admins@${local.kanidm_domain}"
+          scopes = ["admin"]
+        }
+      ]
+    }
+  }
+
+  depends_on = [
+    helm_release.kanidm,
+    helm_release.kaniop,
+    kubernetes_namespace_v1.argo_workflows
+  ]
+}
+
+# Create ExternalName service for Argo Workflows Tailscale egress
+resource "kubernetes_service_v1" "argo_workflows_tailscale_egress" {
+  count = var.argo_workflows_enabled && var.tailscale_enabled ? 1 : 0
+
+  metadata {
+    name      = "argo-workflows-tailscale-egress"
+    namespace = local.argo_workflows_namespace
+    annotations = {
+      "tailscale.com/tailnet-fqdn" = "${local.argo_workflows_tailscale_hostname}.${var.tailscale_tailnet}"
+    }
+  }
+
+  spec {
+    type          = "ExternalName"
+    external_name = "placeholder"
+  }
+
+  depends_on = [
+    kubernetes_namespace_v1.argo_workflows,
+    helm_release.tailscale,
+    helm_release.coredns
   ]
 }
 
