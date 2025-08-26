@@ -60,8 +60,9 @@ module "k8s" {
   cluster_talosconfig_path = "talosconfig"
 
   # Storage
-  hcloud_csi_enabled = false
-  longhorn_enabled   = true
+  hcloud_csi_enabled             = false
+  longhorn_enabled               = true
+  longhorn_default_storage_class = true
   longhorn_helm_values = {
     metrics = {
       serviceMonitor = {
