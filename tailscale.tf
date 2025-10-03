@@ -57,7 +57,7 @@ resource "kubernetes_manifest" "tailscale_dns_config" {
           tag  = "unstable"
         }
         service = {
-          clusterIP = cidrhost(module.k8s.network_service_ipv4_cidr, 253)
+          clusterIP = cidrhost(var.network_service_ipv4_cidr, 253)
         }
       }
     }

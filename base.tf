@@ -188,7 +188,7 @@ module "k8s" {
 
   # Set kubelet cluster DNS to match our custom CoreDNS service IP when enabled
   # Dynamically calculated as the 10th IP in the service subnet
-  kubernetes_kubelet_cluster_dns = var.custom_coredns_enabled ? [cidrhost(module.k8s.network_service_ipv4_cidr, 10)] : null
+  kubernetes_kubelet_cluster_dns = var.custom_coredns_enabled ? [cidrhost(var.network_service_ipv4_cidr, 10)] : null
 
   # Enable NGINX metrics for Prometheus monitoring
   ingress_nginx_helm_values = {

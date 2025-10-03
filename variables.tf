@@ -306,6 +306,12 @@ variable "custom_coredns_enabled" {
   description = "Enables custom CoreDNS deployment with Tailscale DNS forwarding support. When disabled, uses Talos built-in CoreDNS. Enable this with tailscale_enabled for .ts.net domain resolution."
 }
 
+variable "network_service_ipv4_cidr" {
+  type        = string
+  default     = "10.0.96.0/19"
+  description = "The IPv4 CIDR block for Kubernetes services. Default matches the hcloud-k8s module's calculated default when network_ipv4_cidr is 10.0.0.0/16. Override if you customize network_ipv4_cidr in the module."
+}
+
 variable "location" {
   type        = string
   default     = "fsn1"

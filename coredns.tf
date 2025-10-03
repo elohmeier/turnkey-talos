@@ -3,11 +3,11 @@ locals {
 
   # Calculate CoreDNS service IP dynamically from the service CIDR
   # Use the 10th IP in the service subnet (following Kubernetes convention)
-  coredns_service_ip = cidrhost(module.k8s.network_service_ipv4_cidr, 10)
+  coredns_service_ip = cidrhost(var.network_service_ipv4_cidr, 10)
 
   # Tailscale nameserver service IP
   # Use a high IP in the service subnet to avoid conflicts (253rd IP)
-  tailscale_nameserver_ip = cidrhost(module.k8s.network_service_ipv4_cidr, 253)
+  tailscale_nameserver_ip = cidrhost(var.network_service_ipv4_cidr, 253)
 
   # CoreDNS server configuration
   # We only need to override when adding Tailscale DNS forwarding
