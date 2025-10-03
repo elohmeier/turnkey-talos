@@ -7,7 +7,7 @@
     "docker:enableMajor",
     "helpers:pinGitHubActionDigests"
   ],
-  "dependencyDashboardAutoclose": true,
+  "dependencyDashboard": false,
   "enabledManagers": [
     "terraform",
     "github-actions",
