@@ -42,7 +42,7 @@ resource "helm_release" "tailscale" {
 
 # DNSConfig for Tailscale MagicDNS resolution
 resource "kubernetes_manifest" "tailscale_dns_config" {
-  count = var.tailscale_enabled ? 1 : 0
+  count = var.tailscale_enabled && var.tailscale_dns_config_enabled ? 1 : 0
 
   manifest = {
     apiVersion = "tailscale.com/v1alpha1"

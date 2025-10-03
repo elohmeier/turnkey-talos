@@ -294,6 +294,12 @@ variable "tailscale_tailnet" {
   description = "Tailnet name for Tailscale ingress configuration. This should be your tailnet's domain name (e.g., 'example.ts.net')."
 }
 
+variable "tailscale_dns_config_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables the Tailscale DNSConfig for MagicDNS resolution in the cluster. Requires tailscale_enabled to be true."
+}
+
 variable "location" {
   type        = string
   default     = "fsn1"
