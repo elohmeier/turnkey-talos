@@ -127,7 +127,7 @@ variable "kubetail_helm_chart" {
 
 variable "kubetail_helm_version" {
   type        = string
-  default     = "0.13.2"
+  default     = "0.15.2"
   description = "Version of the Kubetail Helm chart to deploy."
 }
 
@@ -164,7 +164,7 @@ variable "cloudnative_pg_helm_chart" {
 
 variable "cloudnative_pg_helm_version" {
   type        = string
-  default     = "0.24.0"
+  default     = "0.26.0"
   description = "Version of the CloudNative-PG Helm chart to deploy."
 }
 
@@ -254,7 +254,7 @@ variable "tailscale_helm_chart" {
 
 variable "tailscale_helm_version" {
   type        = string
-  default     = "1.86.5"
+  default     = "1.88.3"
   description = "Version of the Tailscale Operator Helm chart to deploy."
 }
 
@@ -333,7 +333,7 @@ variable "victoriametrics_helm_chart" {
 
 variable "victoriametrics_helm_version" {
   type        = string
-  default     = "0.55.2"
+  default     = "0.60.1"
   description = "Version of the VictoriaMetrics K8s Stack Helm chart to deploy."
 }
 
@@ -518,7 +518,7 @@ variable "victorialogs_helm_chart" {
 
 variable "victorialogs_helm_version" {
   type        = string
-  default     = "0.11.3"
+  default     = "0.11.11"
   description = "Version of the VictoriaLogs Single Helm chart to deploy."
 }
 
@@ -632,7 +632,7 @@ variable "argocd_helm_chart" {
 
 variable "argocd_helm_version" {
   type        = string
-  default     = "8.1.2"
+  default     = "8.5.8"
   description = "Version of the Argo CD Helm chart to deploy."
 }
 
@@ -663,7 +663,7 @@ variable "argo_workflows_helm_chart" {
 
 variable "argo_workflows_helm_version" {
   type        = string
-  default     = "0.45.19"
+  default     = "0.45.26"
   description = "Version of the Argo Workflows Helm chart to deploy."
 }
 
@@ -882,7 +882,7 @@ variable "k8up_helm_chart" {
 
 variable "k8up_helm_version" {
   type        = string
-  default     = "4.8.4"
+  default     = "4.8.6"
   description = "Version of the k8up Helm chart to deploy"
 }
 
