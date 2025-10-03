@@ -83,7 +83,7 @@ resource "helm_release" "coredns" {
 
   repository       = "https://coredns.github.io/helm"
   chart            = "coredns"
-  version          = "1.36.1"
+  version          = "1.44.3"
   create_namespace = false
   wait             = false
   replace          = true
