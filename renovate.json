@@ -43,10 +43,10 @@
       "description": "OCI Helm chart versions defined as Terraform variables",
       "fileMatch": ["^variables\\.tf$"],
       "matchStrings": [
-        "variable\\s+\"[^\"]+?_helm_repository\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"oci://(?<registryUrl>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_chart\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<depName>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_version\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+        "variable\\s+\"[^\"]+?_helm_repository\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"oci://(?<registry>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_chart\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<depName>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_version\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "datasourceTemplate": "docker",
-      "packageNameTemplate": "{{{registryUrl}}}/{{{depName}}}",
+      "packageNameTemplate": "{{{registry}}}/{{{depName}}}",
       "versioningTemplate": "docker"
     },
     {
