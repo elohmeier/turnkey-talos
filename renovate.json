@@ -7,13 +7,12 @@
     "docker:enableMajor",
     "helpers:pinGitHubActionDigests"
   ],
-  "onboarding": false,
   "dependencyDashboardAutoclose": true,
   "enabledManagers": [
     "terraform",
     "github-actions",
     "helm-values",
-    "regex"
+    "custom.regex"
   ],
   "timezone": "Europe/Berlin",
   "prConcurrentLimit": 10,
@@ -34,16 +33,28 @@
     },
     {
       "groupName": "helm charts",
-      "matchManagers": ["helm-values", "regex"],
+      "matchManagers": ["helm-values", "custom.regex"],
       "labels": ["dependencies", "helm"]
     }
   ],
-  "regexManagers": [
+  "customManagers": [
     {
-      "description": "Helm chart versions defined as Terraform variables",
+      "customType": "regex",
+      "description": "OCI Helm chart versions defined as Terraform variables",
       "fileMatch": ["^variables\\.tf$"],
       "matchStrings": [
-        "variable\\s+\"[^\"]+?_helm_repository\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<registryUrl>(?:https?|oci)://[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_chart\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<packageName>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_version\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+        "variable\\s+\"[^\"]+?_helm_repository\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"oci://(?<registryUrl>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_chart\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<depName>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_version\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "{{{registryUrl}}}/{{{depName}}}",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Traditional Helm chart versions defined as Terraform variables",
+      "fileMatch": ["^variables\\.tf$"],
+      "matchStrings": [
+        "variable\\s+\"[^\"]+?_helm_repository\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<registryUrl>https?://[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_chart\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<packageName>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_version\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<currentValue>[^\"]+)\""
       ],
       "datasourceTemplate": "helm",
       "registryUrlTemplate": "{{{registryUrl}}}",
