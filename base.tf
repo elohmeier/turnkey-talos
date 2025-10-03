@@ -25,8 +25,8 @@ module "k8s" {
   # version = "1.5.0"
 
   # source = "git::https://github.com/elohmeier/terraform-hcloud-kubernetes.git?ref=main"
-  # source = "git::/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes?ref=main"
-  source = "/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes"
+  source = "git::/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes?ref=main"
+  # source = "/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes"
 
   talos_backup_version = "v0.1.0-beta.3"
 
