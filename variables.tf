@@ -300,6 +300,12 @@ variable "tailscale_dns_config_enabled" {
   description = "Enables the Tailscale DNSConfig for MagicDNS resolution in the cluster. Requires tailscale_enabled to be true."
 }
 
+variable "custom_coredns_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables custom CoreDNS deployment with Tailscale DNS forwarding support. When disabled, uses Talos built-in CoreDNS. Enable this with tailscale_enabled for .ts.net domain resolution."
+}
+
 variable "location" {
   type        = string
   default     = "fsn1"

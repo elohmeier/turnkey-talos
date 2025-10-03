@@ -76,6 +76,8 @@ locals {
 # - talos_coredns_enabled = false (disables Talos CoreDNS)
 # - kubernetes_kubelet_cluster_dns dynamically set to the 10th IP in service subnet
 resource "helm_release" "coredns" {
+  count = var.custom_coredns_enabled ? 1 : 0
+
   name      = "coredns"
   namespace = local.coredns_namespace
 

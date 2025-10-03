@@ -437,7 +437,6 @@ resource "kubernetes_service_v1" "grafana_tailscale_egress" {
 
   depends_on = [
     helm_release.grafana_operator,
-    helm_release.tailscale,
-    helm_release.coredns
+    helm_release.tailscale
   ]
 }
