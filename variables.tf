@@ -907,7 +907,7 @@ variable "pushgateway_helm_chart" {
 
 variable "pushgateway_helm_version" {
   type        = string
-  default     = "2.17.0"
+  default     = "3.4.1"
   description = "Version of the Prometheus Push Gateway Helm chart to deploy"
 }
 
