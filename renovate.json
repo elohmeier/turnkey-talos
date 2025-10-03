@@ -1,0 +1,66 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    "docker:enableMajor",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "dependencyDashboard": false,
+  "enabledManagers": [
+    "terraform",
+    "github-actions",
+    "helm-values",
+    "custom.regex"
+  ],
+  "timezone": "Europe/Berlin",
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 4,
+  "labels": ["dependencies"],
+  "reviewers": ["elohmeier"],
+  "packageRules": [
+    {
+      "groupName": "terraform providers",
+      "matchManagers": ["terraform"],
+      "labels": ["dependencies", "terraform"],
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "groupName": "github actions",
+      "matchManagers": ["github-actions"],
+      "labels": ["dependencies", "ci"]
+    },
+    {
+      "groupName": "helm charts",
+      "matchManagers": ["helm-values", "custom.regex"],
+      "labels": ["dependencies", "helm"]
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "OCI Helm chart versions defined as Terraform variables",
+      "fileMatch": ["^variables\\.tf$"],
+      "matchStrings": [
+        "variable\\s+\"[^\"]+?_helm_repository\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"oci://(?<registry>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_chart\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<depName>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_version\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "{{{registry}}}/{{{depName}}}",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Traditional Helm chart versions defined as Terraform variables",
+      "fileMatch": ["^variables\\.tf$"],
+      "matchStrings": [
+        "variable\\s+\"[^\"]+?_helm_repository\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<registryUrl>https?://[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_chart\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<packageName>[^\"]+)\"[\\s\\S]*?\\}[\\s\\S]*?variable\\s+\"[^\"]+?_helm_version\"\\s*\\{[\\s\\S]*?default\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "helm",
+      "registryUrlTemplate": "{{{registryUrl}}}",
+      "depNameTemplate": "{{{packageName}}}",
+      "packageNameTemplate": "{{{packageName}}}",
+      "versioningTemplate": "helm"
+    }
+  ]
+}
