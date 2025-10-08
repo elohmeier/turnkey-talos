@@ -143,15 +143,23 @@ resource "helm_release" "grafana_db" {
           type = "postgresql"
           mode = "standalone"
 
+          version = {
+            postgresql = "18"
+          }
+
           cluster = {
             instances = local.grafana_database_replicas
+
+            annotations = {
+              "cnpg.io/skipWalArchiving" = "enabled"
+            }
 
             affinity = {
               topologyKey = "kubernetes.io/hostname"
             }
 
             storage = {
-              size = "2Gi"
+              size = "1Gi"
             }
 
             initdb = {
