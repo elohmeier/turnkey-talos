@@ -21,11 +21,11 @@ resource "minio_s3_bucket" "longhorn_backup" {
 }
 
 module "k8s" {
-  # source  = "hcloud-k8s/kubernetes/hcloud"
-  # version = "1.5.0"
+  source  = "hcloud-k8s/kubernetes/hcloud"
+  version = "3.8.2"
 
   # source = "git::https://github.com/elohmeier/terraform-hcloud-kubernetes.git?ref=main"
-  source = "git::/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes?ref=main"
+  # source = "git::/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes?ref=main"
   # source = "/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes"
 
   talos_backup_version = "v0.1.0-beta.3"
@@ -63,39 +63,39 @@ module "k8s" {
   longhorn_helm_values = {
     metrics = {
       serviceMonitor = {
-        enabled = true
+        enabled = "true"
       }
     }
     defaultBackupStore = {
       backupTarget                 = "s3://${var.cluster_name}-longhorn-backup@${var.location}/"
       backupTargetCredentialSecret = "longhorn-backup-secret"
-      pollInterval                 = 300
+      pollInterval                 = "300"
     }
     defaultSettings = {
       # Storage optimization settings
-      storageOverProvisioningPercentage = 90 # Reduce from 100% to prevent over-allocation
-      storageMinimalAvailablePercentage = 20 # Reduce from 25% to allow more usable space
+      storageOverProvisioningPercentage = "90" # Reduce from 100% to prevent over-allocation
+      storageMinimalAvailablePercentage = "20" # Reduce from 25% to allow more usable space
 
       # Automatic cleanup settings
-      autoCleanupSystemGeneratedSnapshot              = true
-      autoCleanupRecurringJobBackupSnapshot           = true
-      autoCleanupSnapshotWhenDeleteBackup             = true
-      autoCleanupSnapshotAfterOnDemandBackupCompleted = true
+      autoCleanupSystemGeneratedSnapshot              = "true"
+      autoCleanupRecurringJobBackupSnapshot           = "true"
+      autoCleanupSnapshotWhenDeleteBackup             = "true"
+      autoCleanupSnapshotAfterOnDemandBackupCompleted = "true"
 
       # Orphan resource management
-      orphanResourceAutoDeletion            = true
-      orphanResourceAutoDeletionGracePeriod = 300
+      orphanResourceAutoDeletion            = "true"
+      orphanResourceAutoDeletionGracePeriod = "300"
 
       # Snapshot management
-      snapshotMaxCount = 50 # Reduce from 250 to limit snapshot proliferation
+      snapshotMaxCount = "50" # Reduce from 250 to limit snapshot proliferation
 
       # Replica optimization
-      defaultReplicaCount     = 2             # Reduce from 3 for non-critical workloads
-      replicaSoftAntiAffinity = true          # Better distribution with softer constraints
+      defaultReplicaCount     = "2"           # Reduce from 3 for non-critical workloads
+      replicaSoftAntiAffinity = "true"        # Better distribution with softer constraints
       replicaAutoBalance      = "best-effort" # Automatically rebalance replicas
 
       # Performance settings
-      guaranteedInstanceManagerCPU = 10 # Reserve minimal CPU (10m) for better density
+      guaranteedInstanceManagerCPU = "10" # Reserve minimal CPU (10m) for better density
     }
   }
 
