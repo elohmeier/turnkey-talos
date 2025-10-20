@@ -28,3 +28,14 @@ output "pushgateway_tailscale_url" {
   description = "Tailscale URL for Prometheus Push Gateway web interface."
   value       = local.pushgateway_tailscale_ingress_enabled ? "https://${local.pushgateway_tailscale_hostname}.${var.tailscale_tailnet}" : null
 }
+
+output "flux_ssh_private_key" {
+  description = "Private SSH key for Flux CD Git authentication (PEM format)."
+  value       = local.flux_enabled ? tls_private_key.flux[0].private_key_pem : null
+  sensitive   = true
+}
+
+output "flux_ssh_public_key" {
+  description = "Public SSH key for Flux CD Git authentication (OpenSSH format)."
+  value       = local.flux_enabled ? tls_private_key.flux[0].public_key_openssh : null
+}

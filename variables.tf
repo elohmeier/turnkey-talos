@@ -885,3 +885,58 @@ variable "pushgateway_helm_values" {
   default     = {}
   description = "Additional Helm values to merge with Prometheus Push Gateway configuration"
 }
+
+# Flux
+variable "flux_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables the deployment of Flux CD GitOps toolkit."
+}
+
+variable "flux_helm_repository" {
+  type        = string
+  default     = "https://fluxcd-community.github.io/helm-charts"
+  description = "URL of the Helm repository where the Flux chart is located."
+}
+
+variable "flux_helm_chart" {
+  type        = string
+  default     = "flux2"
+  description = "Name of the Helm chart used for deploying Flux."
+}
+
+variable "flux_helm_version" {
+  type        = string
+  default     = "2.17.0"
+  description = "Version of the Flux Helm chart to deploy."
+}
+
+variable "flux_helm_values" {
+  type        = any
+  default     = {}
+  description = "Custom Helm values for the Flux chart deployment. These values will merge with and will override the default values provided by the Flux Helm chart."
+}
+
+variable "flux_watch_all_namespaces" {
+  type        = bool
+  default     = true
+  description = "If true, Flux will watch for resources in all namespaces. Set to false for multi-tenancy scenarios."
+}
+
+variable "flux_log_level" {
+  type        = string
+  default     = "info"
+  description = "Log level for Flux controllers (debug, info, error)."
+}
+
+variable "flux_image_automation_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable Flux image automation controllers for automatic image updates."
+}
+
+variable "flux_prometheus_podmonitor_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable Prometheus PodMonitor for Flux controllers metrics."
+}
