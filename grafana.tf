@@ -34,7 +34,6 @@ locals {
   }
 
   tailscale_urls = {
-    argocd                       = var.argocd_enabled && var.tailscale_enabled ? "https://${local.argocd_tailscale_hostname}.${var.tailscale_tailnet}" : null
     argo_workflows               = var.argo_workflows_enabled && var.tailscale_enabled ? "https://${local.argo_workflows_tailscale_hostname}.${var.tailscale_tailnet}" : null
     cilium_hubble_ui             = var.tailscale_enabled ? "https://${var.cluster_name}-hubble.${var.tailscale_tailnet}" : null
     kanidm                       = var.kanidm_enabled && var.tailscale_enabled ? "https://${local.kanidm_tailscale_hostname}.${var.tailscale_tailnet}" : null

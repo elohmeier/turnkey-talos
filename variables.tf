@@ -617,37 +617,6 @@ variable "grafana_database_replicas" {
   }
 }
 
-# Argo CD
-variable "argocd_helm_repository" {
-  type        = string
-  default     = "https://argoproj.github.io/argo-helm"
-  description = "URL of the Helm repository where the Argo CD chart is located."
-}
-
-variable "argocd_helm_chart" {
-  type        = string
-  default     = "argo-cd"
-  description = "Name of the Helm chart used for deploying Argo CD."
-}
-
-variable "argocd_helm_version" {
-  type        = string
-  default     = "8.5.8"
-  description = "Version of the Argo CD Helm chart to deploy."
-}
-
-variable "argocd_helm_values" {
-  type        = any
-  default     = {}
-  description = "Custom Helm values for the Argo CD chart deployment. These values will merge with and will override the default values provided by the Argo CD Helm chart."
-}
-
-variable "argocd_enabled" {
-  type        = bool
-  default     = true
-  description = "Enables the deployment of Argo CD."
-}
-
 # Argo Workflows
 variable "argo_workflows_helm_repository" {
   type        = string
