@@ -5,6 +5,7 @@ locals {
 
   victorialogs_values = {
     server = {
+      retentionPeriod = "14d"
       persistentVolume = {
         enabled = true
         size    = "10Gi"
