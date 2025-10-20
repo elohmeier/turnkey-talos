@@ -443,6 +443,12 @@ resource "kubernetes_service_v1" "grafana_tailscale_egress" {
     external_name = "placeholder"
   }
 
+  lifecycle {
+    ignore_changes = [
+      spec[0].external_name
+    ]
+  }
+
   depends_on = [
     helm_release.grafana_operator,
     helm_release.tailscale

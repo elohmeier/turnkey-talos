@@ -215,6 +215,12 @@ resource "kubernetes_service_v1" "kanidm_tailscale_egress" {
     external_name = "placeholder"
   }
 
+  lifecycle {
+    ignore_changes = [
+      spec[0].external_name
+    ]
+  }
+
   depends_on = [
     helm_release.kanidm,
     helm_release.tailscale
