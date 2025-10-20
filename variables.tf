@@ -294,18 +294,6 @@ variable "tailscale_tailnet" {
   description = "Tailnet name for Tailscale ingress configuration. This should be your tailnet's domain name (e.g., 'example.ts.net')."
 }
 
-variable "tailscale_dns_config_enabled" {
-  type        = bool
-  default     = false
-  description = "Enables the Tailscale DNSConfig for MagicDNS resolution in the cluster. Requires tailscale_enabled to be true."
-}
-
-variable "custom_coredns_enabled" {
-  type        = bool
-  default     = false
-  description = "Enables custom CoreDNS deployment with Tailscale DNS forwarding support. When disabled, uses Talos built-in CoreDNS. Enable this with tailscale_enabled for .ts.net domain resolution."
-}
-
 variable "network_service_ipv4_cidr" {
   type        = string
   default     = "10.0.96.0/19"
