@@ -16,6 +16,11 @@ locals {
       tolerations = [
         { key = "node-role.kubernetes.io/control-plane", operator = "Exists", effect = "NoSchedule" }
       ]
+
+      crds = {
+        enabled = true
+        plain   = true
+      }
     }
 
     # Use VMSingle by default for simplicity
