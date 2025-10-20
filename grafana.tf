@@ -1,22 +1,10 @@
 locals {
   grafana_operator_enabled   = var.grafana_operator_enabled
   grafana_enabled            = var.grafana_enabled && local.grafana_operator_enabled
-  grafana_database_enabled   = var.grafana_enabled && var.cloudnative_pg_enabled
-  grafana_database_user      = "grafana"
   grafana_tailscale_hostname = "${var.cluster_name}-grafana"
 
-  # Calculate the number of nodes available
-  node_count = var.worker_count > 0 ? var.worker_count : var.control_plane_count
-
-  # Grafana replicas logic
-  grafana_replicas = var.grafana_replicas > 0 ? var.grafana_replicas : (
-    var.grafana_ha_enabled && local.grafana_database_enabled && local.node_count > 1 ? 2 : 1
-  )
-
-  # Database replicas logic
-  grafana_database_replicas = var.grafana_database_replicas > 0 ? var.grafana_database_replicas : (
-    var.grafana_ha_enabled && local.node_count > 1 ? 3 : 1
-  )
+  # Grafana always uses 1 replica with SQLite (no HA without external database)
+  grafana_replicas = 1
 
   grafana_operator_values = {
     # node tolerations for control-plane only clusters
@@ -98,93 +86,6 @@ resource "kubernetes_secret" "grafana_admin_credentials" {
   depends_on = [helm_release.grafana_operator]
 }
 
-resource "random_password" "grafana_db_password" {
-  count = local.grafana_database_enabled ? 1 : 0
-
-  length  = 32
-  special = true
-}
-
-resource "kubernetes_secret" "grafana_db_credentials" {
-  count = local.grafana_database_enabled ? 1 : 0
-
-  metadata {
-    name      = "grafana-db-cluster-credentials"
-    namespace = "grafana"
-  }
-
-  type = "kubernetes.io/basic-auth"
-
-  data = {
-    username = local.grafana_database_user
-    password = random_password.grafana_db_password[0].result
-  }
-
-  depends_on = [helm_release.grafana_operator]
-}
-
-resource "helm_release" "grafana_db" {
-  count = local.grafana_database_enabled ? 1 : 0
-
-  name      = "grafana-db"
-  namespace = "grafana"
-
-  repository       = var.cloudnative_pg_cluster_helm_repository
-  chart            = var.cloudnative_pg_cluster_helm_chart
-  version          = var.cloudnative_pg_cluster_helm_version
-  create_namespace = false
-  wait             = false
-
-  values = [
-    yamlencode(
-      merge(
-        {
-          type = "postgresql"
-          mode = "standalone"
-
-          version = {
-            postgresql = "18"
-          }
-
-          cluster = {
-            instances = local.grafana_database_replicas
-
-            annotations = {
-              "cnpg.io/skipWalArchiving" = "enabled"
-            }
-
-            affinity = {
-              topologyKey = "kubernetes.io/hostname"
-            }
-
-            storage = {
-              size = "1Gi"
-            }
-
-            initdb = {
-              database = "grafana"
-              owner    = local.grafana_database_user
-              secret = {
-                name = "grafana-db-cluster-credentials"
-              }
-            }
-
-            monitoring = {
-              enabled = true
-            }
-          }
-        },
-        var.cloudnative_pg_cluster_helm_values
-      )
-    )
-  ]
-
-  depends_on = [
-    helm_release.cloudnative_pg,
-    helm_release.grafana_operator,
-    kubernetes_secret.grafana_db_credentials
-  ]
-}
 
 # Grafana instance using the operator
 resource "kubernetes_manifest" "grafana_instance" {
@@ -240,15 +141,6 @@ resource "kubernetes_manifest" "grafana_instance" {
                             name = "grafana-admin-credentials"
                           }
                         }
-                      },
-                      {
-                        name = "GF_DATABASE_PASSWORD"
-                        valueFrom = {
-                          secretKeyRef = {
-                            key  = "password"
-                            name = "grafana-db-cluster-credentials"
-                          }
-                        }
                       }
                     ]
                   }
@@ -286,6 +178,10 @@ resource "kubernetes_manifest" "grafana_instance" {
           auth = {
             disable_login_form = var.kanidm_enabled && var.kanidm_grafana_oauth_enabled ? "true" : "false"
           }
+          "auth.anonymous" = {
+            enabled  = true
+            org_role = "Viewer"
+          }
           server = {
             root_url = var.tailscale_enabled ? "https://${local.grafana_tailscale_hostname}.${var.tailscale_tailnet}" : ""
           }
@@ -306,34 +202,13 @@ resource "kubernetes_manifest" "grafana_instance" {
             role_attribute_path        = "contains(groups[*], 'grafana-admins@${local.kanidm_domain}') && 'Admin' || contains(groups[*], 'grafana-editors@${local.kanidm_domain}') && 'Editor' || 'Viewer'"
             allow_assign_grafana_admin = true
           }
-        } : {},
-        local.grafana_database_enabled ? merge(
-          {
-            database = {
-              type = "postgres"
-              host = "grafana-db-cluster-rw:5432"
-              name = "grafana"
-              user = local.grafana_database_user
-            }
-          },
-          var.grafana_ha_enabled && local.grafana_replicas > 1 ? {
-            unified_alerting = {
-              enabled              = true
-              ha_listen_address    = "$${POD_IP}:9094"
-              ha_peers             = "grafana-alerting:9094"
-              ha_advertise_address = "$${POD_IP}:9094"
-              ha_peer_timeout      = "15s"
-              ha_reconnect_timeout = "2m"
-            }
-          } : {}
-        ) : {}
+        } : {}
       )
     }
   }
 
   depends_on = [
     helm_release.grafana_operator,
-    helm_release.grafana_db,
     kubernetes_secret.grafana_admin_credentials,
     kubernetes_manifest.grafana_oauth2_client,
     kubernetes_service_v1.grafana_tailscale_egress,
