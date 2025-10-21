@@ -144,12 +144,19 @@ locals {
               {
                 receiver = "critical-pushover"
                 matchers = ["severity=critical"]
-                continue = var.victoriametrics_alertmanager_email_enabled
+                continue = var.victoriametrics_alertmanager_email_enabled || var.victoriametrics_alertmanager_teams_enabled
               }
             ] : [],
             var.victoriametrics_alertmanager_email_enabled ? [
               {
                 receiver = "critical-warning-email"
+                matchers = ["severity=~critical|warning"]
+                continue = var.victoriametrics_alertmanager_teams_enabled
+              }
+            ] : [],
+            var.victoriametrics_alertmanager_teams_enabled ? [
+              {
+                receiver = "critical-warning-teams"
                 matchers = ["severity=~critical|warning"]
               }
             ] : []
@@ -218,6 +225,19 @@ Severity: {{ .Labels.severity }}
 Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
 {{ end }}
 EOT
+                }
+              ]
+            }
+          ] : [],
+          var.victoriametrics_alertmanager_teams_enabled ? [
+            {
+              name = "critical-warning-teams"
+              msteamsv2_configs = [
+                {
+                  webhook_url = var.victoriametrics_alertmanager_teams_webhook_url
+                  title       = var.victoriametrics_alertmanager_teams_title
+                  summary     = var.victoriametrics_alertmanager_teams_summary
+                  text        = var.victoriametrics_alertmanager_teams_text
                 }
               ]
             }

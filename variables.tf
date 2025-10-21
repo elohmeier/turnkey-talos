@@ -490,6 +490,55 @@ variable "victoriametrics_alertmanager_email_require_tls" {
   description = "Require TLS for SMTP connection in VictoriaMetrics Alertmanager email notifications."
 }
 
+variable "victoriametrics_alertmanager_teams_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Microsoft Teams notifications for VictoriaMetrics Alertmanager."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_teams_enabled || var.victoriametrics_enabled
+    error_message = "victoriametrics_alertmanager_teams_enabled can only be true when victoriametrics_enabled is also true."
+  }
+}
+
+variable "victoriametrics_alertmanager_teams_webhook_url" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Microsoft Teams webhook URL for VictoriaMetrics Alertmanager notifications. Required when victoriametrics_alertmanager_teams_enabled is true."
+
+  validation {
+    condition     = !var.victoriametrics_alertmanager_teams_enabled || var.victoriametrics_alertmanager_teams_webhook_url != ""
+    error_message = "victoriametrics_alertmanager_teams_webhook_url must be provided when victoriametrics_alertmanager_teams_enabled is true."
+  }
+}
+
+variable "victoriametrics_alertmanager_teams_title" {
+  type        = string
+  default     = "{{ .GroupLabels.alertname }} - {{ .Status | toUpper }}"
+  description = "Title template for Microsoft Teams notifications."
+}
+
+variable "victoriametrics_alertmanager_teams_summary" {
+  type        = string
+  default     = "{{ .GroupLabels.alertname }}"
+  description = "Summary template for Microsoft Teams notifications."
+}
+
+variable "victoriametrics_alertmanager_teams_text" {
+  type        = string
+  default     = <<-EOT
+{{ range .Alerts }}
+**Alert:** {{ .Annotations.summary }}
+**Severity:** {{ .Labels.severity }}
+{{ if .Annotations.description }}**Description:** {{ .Annotations.description }}{{ end }}
+{{ if .Annotations.runbook_url }}**Runbook:** {{ .Annotations.runbook_url }}{{ end }}
+**Labels:** {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+{{ end }}
+EOT
+  description = "Text template for Microsoft Teams notifications."
+}
+
 
 # VictoriaLogs
 variable "victorialogs_helm_repository" {
