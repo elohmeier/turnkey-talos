@@ -4,7 +4,7 @@ terraform {
   required_providers {
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 3.0.2"
+      version = "~> 3.1.0"
     }
 
     http = {
@@ -19,7 +19,7 @@ terraform {
 
     minio = {
       source  = "aminueza/minio"
-      version = "~> 3.6.0"
+      version = "~> 3.11.0"
     }
 
     random = {
