@@ -22,7 +22,7 @@ resource "minio_s3_bucket" "longhorn_backup" {
 
 module "k8s" {
   source  = "hcloud-k8s/kubernetes/hcloud"
-  version = "3.8.2"
+  version = "3.9.3"
 
   # source = "git::https://github.com/elohmeier/terraform-hcloud-kubernetes.git?ref=main"
   # source = "git::/Users/enno/repos/github.com/hcloud-k8s/terraform-hcloud-kubernetes?ref=main"
