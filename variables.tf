@@ -127,7 +127,7 @@ variable "kubetail_helm_chart" {
 
 variable "kubetail_helm_version" {
   type        = string
-  default     = "0.15.2"
+  default     = "0.16.2"
   description = "Version of the Kubetail Helm chart to deploy."
 }
 
@@ -164,7 +164,7 @@ variable "cloudnative_pg_helm_chart" {
 
 variable "cloudnative_pg_helm_version" {
   type        = string
-  default     = "0.26.0"
+  default     = "0.26.1"
   description = "Version of the CloudNative-PG Helm chart to deploy."
 }
 
@@ -254,7 +254,7 @@ variable "tailscale_helm_chart" {
 
 variable "tailscale_helm_version" {
   type        = string
-  default     = "1.88.3"
+  default     = "1.90.6"
   description = "Version of the Tailscale Operator Helm chart to deploy."
 }
 
@@ -321,7 +321,7 @@ variable "victoriametrics_helm_chart" {
 
 variable "victoriametrics_helm_version" {
   type        = string
-  default     = "0.60.1"
+  default     = "0.63.5"
   description = "Version of the VictoriaMetrics K8s Stack Helm chart to deploy."
 }
 
@@ -555,7 +555,7 @@ variable "victorialogs_helm_chart" {
 
 variable "victorialogs_helm_version" {
   type        = string
-  default     = "0.11.11"
+  default     = "0.11.17"
   description = "Version of the VictoriaLogs Single Helm chart to deploy."
 }
 
@@ -641,7 +641,7 @@ variable "argo_workflows_helm_chart" {
 
 variable "argo_workflows_helm_version" {
   type        = string
-  default     = "0.45.26"
+  default     = "0.45.28"
   description = "Version of the Argo Workflows Helm chart to deploy."
 }
 
@@ -885,7 +885,7 @@ variable "pushgateway_helm_chart" {
 
 variable "pushgateway_helm_version" {
   type        = string
-  default     = "3.4.1"
+  default     = "3.4.2"
   description = "Version of the Prometheus Push Gateway Helm chart to deploy"
 }
 
@@ -916,7 +916,7 @@ variable "flux_helm_chart" {
 
 variable "flux_helm_version" {
   type        = string
-  default     = "2.17.0"
+  default     = "2.17.1"
   description = "Version of the Flux Helm chart to deploy."
 }
 
